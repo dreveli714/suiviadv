@@ -1,0 +1,8 @@
+# Backend Apps Script — no necesario en el repo público
+Code.gs
+
+# Sistema / editores
+.DS_Store
+Thumbs.db
+.vscode/
+*.log

@@ -228,6 +228,11 @@ tbody tr{cursor:pointer;transition:background .12s}
 tbody tr:hover{background:#f7f9fc}
 @keyframes flashRow{0%,55%{background:#eaf4ff}100%{background:transparent}}
 tbody tr.flash{animation:flashRow 2.1s ease}
+tr.group-row{cursor:default;background:var(--bg)}
+tr.group-row:hover{background:var(--bg)}
+tr.group-row td{padding:16px 14px 7px;border-bottom:1px solid var(--line)}
+.group-label{font-size:12px;font-weight:700;color:var(--ink);text-transform:uppercase;letter-spacing:.04em}
+.group-count{margin-left:8px;font-size:11px;color:var(--ink-3);background:#fff;border:1px solid var(--line);border-radius:999px;padding:1px 8px;font-weight:500}
 tbody tr:last-child td{border-bottom:0}
 .resp-pill{display:inline-flex;align-items:center;gap:7px}
 .avatar{width:24px;height:24px;border-radius:50%;color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -443,7 +448,27 @@ function statutColor(name){
 function getCSS(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
 function upsLink(t){ return "https://www.ups.com/track?loc=fr_FR&requester=ST&tracknum="+encodeURIComponent(t.trim()); }
 function initials(n){return (n||"?").trim().charAt(0).toUpperCase();}
-function todayISO(){const d=new Date();return d.toISOString().slice(0,10);}
+function isoLocal(d){const p=n=>String(n).padStart(2,"0");return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate());}
+function todayISO(){return isoLocal(new Date());}
+// Normalise n'importe quelle date (objet Date sérialisé, ISO, jj/mm/aaaa) en yyyy-MM-dd
+function normDate(v){
+  if(!v) return "";
+  v=String(v);
+  let m=v.match(/^(\d{4})-(\d{2})-(\d{2})/); if(m) return m[1]+"-"+m[2]+"-"+m[3];
+  m=v.match(/^(\d{2})\/(\d{2})\/(\d{4})/);   if(m) return m[3]+"-"+m[2]+"-"+m[1];
+  const d=new Date(v); if(!isNaN(d)) return isoLocal(d);
+  return "";
+}
+function dayLabel(b){
+  if(!b) return "Sans date";
+  const yd=new Date(); yd.setDate(yd.getDate()-1);
+  if(b===todayISO()) return "Aujourd'hui";
+  if(b===isoLocal(yd)) return "Hier";
+  const d=new Date(b+"T12:00:00");
+  if(isNaN(d)) return b;
+  const s=d.toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"});
+  return s.charAt(0).toUpperCase()+s.slice(1);
+}
 function frDate(iso){ if(!iso) return ""; const p=String(iso).slice(0,10).split("-"); return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:iso; }
 
 /* ---------- Stockage sûr (localStorage avec repli mémoire) ---------- */
@@ -484,8 +509,8 @@ async function api(action, payload={}){
 
 /* ---- Backend démo (localStorage) ---- */
 const DEMO_PW = "123";
-function demoLoad(){ try{return JSON.parse(store.get("adv_demo_v2")||"null");}catch(e){return null;} }
-function demoSave(){ store.set("adv_demo_v2", JSON.stringify(ROWS)); }
+function demoLoad(){ try{return JSON.parse(store.get("adv_demo_v3")||"null");}catch(e){return null;} }
+function demoSave(){ store.set("adv_demo_v3", JSON.stringify(ROWS)); }
 function demoSeed(){
   const seed = [
     ["31/08/2026","Martina","Commandes","SIGN O THE TIME","","","En préparation","","","",""],
@@ -501,7 +526,8 @@ function demoSeed(){
   return seed.map((r,i)=>({
     id:"D"+(i+1), date:isoFromFr(r[0]), responsable:r[1], type:r[2], client:r[3],
     devis:r[4], commande:r[5], statut:r[6], notes:r[7],
-    expedition:r[8]||"Non", livraison:r[9]||"Non", tracking:r[10], supprime:""
+    expedition:r[8]||"Non", livraison:r[9]||"Non", tracking:r[10],
+    creeLe:isoFromFr(r[0])+"T08:00:"+String(i).padStart(2,"0")+".000Z", modifieLe:"", supprime:""
   }));
 }
 function isoFromFr(fr){const p=fr.split("/");return p.length===3?`${p[2]}-${p[1]}-${p[0]}`:fr;}
@@ -686,6 +712,7 @@ async function quickAdd(){
     notes:"",
     expedition:"Non", livraison:"Non",
     tracking: val("qTrack").trim(),
+    creeLe:new Date().toISOString(), modifieLe:new Date().toISOString(),
     supprime:""
   };
   // Affichage immédiat (optimiste) — la vitesse ressentie
@@ -723,7 +750,11 @@ function filtered(){
       if(!hay.includes(q)) return false;
     }
     return true;
-  }).sort((a,b)=> (b.date||"").localeCompare(a.date||"") );
+  }).sort((a,b)=>{
+    const ba=normDate(a.date)||normDate(a.creeLe), bb=normDate(b.date)||normDate(b.creeLe);
+    if(ba!==bb) return bb.localeCompare(ba);                 // jour le plus récent d'abord
+    return String(b.creeLe||"").localeCompare(String(a.creeLe||"")); // puis ordre de création
+  });
 }
 
 /* ============================================================
@@ -775,12 +806,9 @@ function refreshClientList(){
 }
 function esc(s){return String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
 
-function renderTable(rows){
-  const tb=document.getElementById("tbody");
-  document.getElementById("tableEmpty").classList.toggle("hidden",rows.length>0);
-  tb.innerHTML = rows.map(r=>`
-    <tr data-id="${r.id}" class="${r.id===justAddedId?'flash':''}" onclick="openEdit('${r.id}')">
-      <td><div class="cell-client"><span class="cc-name">${esc(r.client)}</span><span class="cc-date mono">${frDate(r.date)}</span></div></td>
+function rowHtml(r){
+  return `<tr data-id="${r.id}" class="${r.id===justAddedId?'flash':''}" onclick="openEdit('${r.id}')">
+      <td style="font-weight:600">${esc(r.client)}</td>
       <td><span class="resp-pill"><span class="avatar" style="background:${AVATAR_COLORS[r.responsable]||'#8e8e93'}">${initials(r.responsable)}</span>${esc(r.responsable)}</span></td>
       <td><span class="type-tag">${esc(r.type)}</span></td>
       <td class="mono muted">${esc(r.devis)||"—"}</td>
@@ -789,7 +817,20 @@ function renderTable(rows){
       <td>${r.livraison==="Oui"?"<span class='oui'>Oui</span>":"<span class='non'>—</span>"}</td>
       <td>${r.tracking?`<a class="ups mono" href="${upsLink(r.tracking)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${esc(r.tracking)} ↗</a>`:"<span class='muted'>—</span>"}</td>
       <td class="muted" style="max-width:220px;overflow:hidden;text-overflow:ellipsis">${esc(r.notes)||""}</td>
-    </tr>`).join("");
+    </tr>`;
+}
+function renderTable(rows){
+  const tb=document.getElementById("tbody");
+  document.getElementById("tableEmpty").classList.toggle("hidden",rows.length>0);
+  // Regrouper par jour (les lignes arrivent déjà triées)
+  const buckets={}; const order=[];
+  rows.forEach(r=>{ const b=normDate(r.date)||normDate(r.creeLe)||""; if(!buckets[b]){buckets[b]=[];order.push(b);} buckets[b].push(r); });
+  let html="";
+  order.forEach(b=>{
+    html+=`<tr class="group-row"><td colspan="9"><span class="group-label">${dayLabel(b)}</span><span class="group-count">${buckets[b].length}</span></td></tr>`;
+    html+=buckets[b].map(rowHtml).join("");
+  });
+  tb.innerHTML=html;
   if(justAddedId){
     const el=tb.querySelector('tr[data-id="'+justAddedId+'"]');
     if(el) el.scrollIntoView({behavior:"smooth",block:"center"});
@@ -856,12 +897,12 @@ function renderCharts(rows){
     options:{responsive:true,maintainAspectRatio:false,cutout:"62%",plugins:{legend:{position:"right",labels:{boxWidth:10,padding:10,font:{size:11}}}}}
   });
   // par jour
-  const days=[...new Set(rows.map(r=>r.date).filter(Boolean))].sort();
-  const dData=days.map(d=>rows.filter(r=>r.date===d).length);
+  const days=[...new Set(rows.map(r=>normDate(r.date)||normDate(r.creeLe)).filter(Boolean))].sort();
+  const dData=days.map(d=>rows.filter(r=>(normDate(r.date)||normDate(r.creeLe))===d).length);
   destroy("d");
   charts.d=new Chart(document.getElementById("chDay"),{
     type:"line",
-    data:{labels:days.map(frDate),datasets:[{data:dData,borderColor:getCSS("--accent"),backgroundColor:"rgba(0,113,227,.1)",fill:true,tension:.35,pointRadius:3,pointBackgroundColor:getCSS("--accent")}]},
+    data:{labels:days.map(d=>{const p=d.split("-");return p[2]+"/"+p[1];}),datasets:[{data:dData,borderColor:getCSS("--accent"),backgroundColor:"rgba(0,113,227,.1)",fill:true,tension:.35,pointRadius:3,pointBackgroundColor:getCSS("--accent")}]},
     options:baseOpts(true)
   });
   // top clients
@@ -893,7 +934,7 @@ function openEdit(id){
     <div class="modal" onclick="event.stopPropagation()">
       <div class="modal-head"><h3>Modifier l'action</h3><button class="close" onclick="closeEdit()">✕</button></div>
       <div class="modal-body"><div class="form-grid">
-        <div><label>Date</label><input type="date" id="eDate" value="${esc((r.date||'').slice(0,10))}"></div>
+        <div><label>Date</label><input type="date" id="eDate" value="${esc(normDate(r.date))}"></div>
         <div><label>Responsable</label><select id="eResp">${TEAM.map(n=>`<option ${n===r.responsable?"selected":""}>${n}</option>`).join("")}${TEAM.includes(r.responsable)?"":`<option selected>${esc(r.responsable)}</option>`}</select></div>
         <div><label>Type d'action</label><select id="eType" onchange="autreCheck(this)">${opt(typeOpts,r.type)}</select></div>
         <div><label>Statut</label><select id="eStatut" onchange="autreCheck(this)">${opt(stOpts,r.statut)}</select></div>
@@ -1033,7 +1074,8 @@ function buildEclairInto(doc){
       type:doc.getElementById("eclType").value, client,
       devis:doc.getElementById("eclDevis").value.trim(), commande:"",
       statut:eclStatut, notes:"", expedition:"Non", livraison:"Non",
-      tracking:doc.getElementById("eclTrack").value.trim(), supprime:""
+      tracking:doc.getElementById("eclTrack").value.trim(),
+      creeLe:new Date().toISOString(), modifieLe:new Date().toISOString(), supprime:""
     };
     ROWS.push(row); justAddedId=row.id;
     ["eclClient","eclDevis","eclTrack"].forEach(id=>doc.getElementById(id).value="");

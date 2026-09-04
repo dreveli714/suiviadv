@@ -175,6 +175,41 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);
 .reset{border:1px solid var(--line);background:#fff;color:var(--ink-2);border-radius:10px;padding:8px 12px;font-size:13px;cursor:pointer}
 .reset:hover{background:var(--surface-2)}
 
+/* Indicateurs (KPI) */
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px;cursor:pointer;box-shadow:var(--shadow-1);transition:transform .12s, box-shadow .16s, border-color .16s;user-select:none}
+.kpi:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(0,0,0,.08)}
+.kpi.active{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,113,227,.13)}
+.kpi .kpi-top{display:flex;align-items:center;gap:7px;margin-bottom:11px}
+.kpi .kdot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.kpi .klabel{font-size:12.5px;color:var(--ink-2);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi .kval{font-size:30px;font-weight:600;letter-spacing:-.025em;line-height:1;font-variant-numeric:tabular-nums}
+
+/* Cellule client + date compacte */
+.cell-client{display:flex;flex-direction:column;gap:2px}
+.cell-client .cc-name{font-weight:600}
+.cell-client .cc-date{font-size:11px;color:var(--ink-3)}
+
+/* Bouton + mini-fenêtre « Saisie éclair » */
+.eclair-btn{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:10px;padding:7px 12px;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.eclair-btn:hover{background:var(--surface-2)}
+.eclair-body{margin:0;padding:16px;background:var(--bg);font-family:var(--font);color:var(--ink);min-height:100vh}
+.ecl-head{display:flex;align-items:center;margin-bottom:14px}
+.ecl-head b{font-size:16px;letter-spacing:-.02em}
+.ecl-who{margin-left:auto}
+.ecl-who select{font-size:13px;padding:6px 9px}
+.ecl-form{display:flex;flex-direction:column;gap:10px}
+.ecl-form select,.ecl-form input{width:100%;font-size:15px;padding:11px 12px}
+.ecl-form .cap-seg{width:100%}
+.ecl-form .cap-seg button{flex:1}
+.ecl-add{width:100%;border:0;background:var(--accent);color:#fff;border-radius:12px;padding:13px;font-size:15px;font-weight:600;cursor:pointer;margin-top:2px;transition:filter .15s,transform .05s}
+.ecl-add:hover{filter:brightness(1.06)}
+.ecl-add:active{transform:scale(.99)}
+.ecl-recent{margin-top:16px;border-top:1px solid var(--line);padding-top:12px}
+.ecl-recent h5{margin:0 0 8px;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);font-weight:600}
+.ecl-item{display:flex;align-items:center;gap:8px;font-size:13px;padding:5px 0;color:var(--ink-2)}
+.ecl-empty{font-size:12.5px;color:var(--ink-3)}
+
 /* Onglets */
 .tabs{display:flex;background:#ececed;border-radius:12px;padding:3px;gap:2px;margin-bottom:16px;width:max-content}
 .tabs button{border:0;background:transparent;color:var(--ink-2);padding:8px 18px;border-radius:9px;font-size:14px;font-weight:500;cursor:pointer;transition:.15s}
@@ -185,8 +220,8 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);
 .tbl-wrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:13.5px}
 thead th{
-  text-align:left;font-weight:500;color:var(--ink-2);font-size:12px;
-  padding:12px 14px;border-bottom:1px solid var(--line);background:var(--surface-2);position:sticky;top:0;white-space:nowrap;
+  text-align:left;font-weight:600;color:var(--ink-3);font-size:11px;text-transform:uppercase;letter-spacing:.05em;
+  padding:13px 14px;border-bottom:1px solid var(--line);background:var(--surface-2);position:sticky;top:0;white-space:nowrap;
 }
 tbody td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:middle;white-space:nowrap}
 tbody tr{cursor:pointer;transition:background .12s}
@@ -290,6 +325,7 @@ tbody tr:last-child td{border-bottom:0}
         <span style="font-size:12.5px;color:var(--ink-2)">Qui saisit&nbsp;?</span>
         <div class="seg" id="userSeg"></div>
         <span class="session" id="sessionTag"></span>
+        <button class="eclair-btn" id="eclairBtn" title="Ouvrir une mini-fenêtre de saisie flottante">⤢ Saisie éclair</button>
         <button class="icon-btn" id="logoutBtn" title="Fermer la session">⏻</button>
       </div>
     </div>
@@ -304,7 +340,6 @@ tbody tr:last-child td{border-bottom:0}
     <!-- Saisie rapide -->
     <div class="capture">
       <div class="capture-row">
-        <input class="cap-date" type="date" id="qDate" title="Date">
         <select class="cap-type" id="qType" title="Type d'action"></select>
         <input class="cap-client" id="qClient" list="clientList" placeholder="Client" title="Client">
         <input class="cap-code mono" id="qDevis" placeholder="Devis" title="Devis">
@@ -314,6 +349,9 @@ tbody tr:last-child td{border-bottom:0}
       </div>
     </div>
     <datalist id="clientList"></datalist>
+
+    <!-- Indicateurs -->
+    <div class="kpis" id="kpis"></div>
 
     <!-- Filtres -->
     <div class="filters">
@@ -344,7 +382,7 @@ tbody tr:last-child td{border-bottom:0}
       <div class="tbl-wrap">
         <table>
           <thead><tr>
-            <th>Date</th><th>Responsable</th><th>Type</th><th>Client</th>
+            <th>Client</th><th>Responsable</th><th>Type</th>
             <th>Devis</th><th>Statut</th>
             <th>Exp.</th><th>Livr.</th><th>Tracking</th><th>Notes</th>
           </tr></thead>
@@ -383,7 +421,7 @@ tbody tr:last-child td{border-bottom:0}
      l'URL du Web App. Laissée vide = mode démo local.
    ============================================================ */
 const CONFIG = {
-  API_URL: "https://script.google.com/macros/s/AKfycbwkPgMHS5X-vjHFp6cnyCoyKTrCWc4xTScwSKTd2Il_S_KW6x3nMMl1_pwfsPJqVRc5pg/exec",   // ex: "https://script.google.com/macros/s/XXXX/exec"
+  API_URL: "",   // ex: "https://script.google.com/macros/s/XXXX/exec"
 };
 
 /* ---------- Constantes métier ---------- */
@@ -423,6 +461,9 @@ let currentView = "table";
 let editingId = null;
 let justAddedId = null;
 let qStatutVal = "En préparation";
+const ECLAIR_MODE = new URLSearchParams(location.search).has("eclair");
+let pipWin = null;
+let lastReload = 0;
 const DEMO = !CONFIG.API_URL;
 
 /* ============================================================
@@ -465,7 +506,7 @@ function demoSeed(){
 }
 function isoFromFr(fr){const p=fr.split("/");return p.length===3?`${p[2]}-${p[1]}-${p[0]}`:fr;}
 async function demoApi(action,p){
-  await new Promise(r=>setTimeout(r,120)); // légère latence réaliste
+  await new Promise(r=>setTimeout(r,15)); // latence minimale (démo)
   if(action==="auth"){ if(String(p.password)!==DEMO_PW) throw new Error("MOT_DE_PASSE_INCORRECT"); return {ok:true, token:"demo|"+(Date.now()+8*3600*1000)}; }
   if(action==="list"){ let d=demoLoad(); if(!d){ d=demoSeed(); ROWS=d; demoSave(); } return {ok:true, rows:d}; }
   if(action==="add"){ ROWS.push(p.row); demoSave(); return {ok:true}; }
@@ -534,13 +575,23 @@ function tickSession(){
    ============================================================ */
 async function boot(){
   document.getElementById("gate").classList.add("hidden");
+  if(ECLAIR_MODE){                       // page ouverte en mini-fenêtre (fallback popup)
+    document.getElementById("app").classList.add("hidden");
+    try{ ROWS=(await api("list")).rows||[]; }catch(e){ ROWS=[]; }
+    buildEclairInto(document);
+    return;
+  }
   document.getElementById("app").classList.remove("hidden");
   if(DEMO) document.getElementById("demoBanner").classList.remove("hidden");
   buildStaticUI();
   tickSession(); setInterval(tickSession,30000);
+  document.addEventListener("visibilitychange",()=>{   // resync en revenant sur l'onglet
+    if(document.visibilityState==="visible" && Date.now()-lastReload>4000) reload();
+  });
   await reload();
 }
 async function reload(){
+  lastReload=Date.now();
   try{
     const r = await api("list");
     ROWS = r.rows||[];
@@ -563,7 +614,6 @@ function buildStaticUI(){
   fillSelect("fStatut", STATUTS.map(s=>s.name), true);
   fillSelect("fResp", TEAM, true);
   buildStatutSeg();
-  document.getElementById("qDate").value = todayISO();
   // évènements filtres
   ["fSearch","fResp","fType","fStatut","fExp","fLiv","fFrom","fTo"].forEach(id=>{
     document.getElementById(id).addEventListener("input",render);
@@ -578,6 +628,7 @@ function buildStaticUI(){
   });
   // ajout rapide
   document.getElementById("addBtn").onclick=quickAdd;
+  document.getElementById("eclairBtn").onclick=openEclair;
   document.getElementById("qClient").addEventListener("keydown",e=>{if(e.key==="Enter")quickAdd();});
   document.getElementById("qTrack").addEventListener("keydown",e=>{if(e.key==="Enter")quickAdd();});
 }
@@ -626,7 +677,7 @@ async function quickAdd(){
   if(!client){ toast("Indiquez au moins un client.",true); document.getElementById("qClient").focus(); return; }
   const row={
     id:"R"+Date.now().toString(36)+Math.floor(Math.random()*1000),
-    date: val("qDate")||todayISO(),
+    date: todayISO(),
     responsable: currentUser,
     type, client,
     devis: val("qDevis").trim(),
@@ -637,16 +688,16 @@ async function quickAdd(){
     tracking: val("qTrack").trim(),
     supprime:""
   };
-  try{
-    await api("add",{row});
-    ROWS.push(row);
-    ["qClient","qDevis","qTrack"].forEach(id=>document.getElementById(id).value="");
-    document.getElementById("qClient").focus();
-    justAddedId=row.id;
-    switchView("table");   // rend la nouvelle ligne visible
-    render();
-    toast("✓ "+client+" ajouté");
-  }catch(e){ toast("Échec : "+e.message,true); }
+  // Affichage immédiat (optimiste) — la vitesse ressentie
+  ROWS.push(row);
+  justAddedId=row.id;
+  ["qClient","qDevis","qTrack"].forEach(id=>document.getElementById(id).value="");
+  switchView("table");
+  document.getElementById("qClient").focus();
+  toast("✓ "+client+" ajouté");
+  // Enregistrement en arrière-plan
+  try{ await api("add",{row}); }
+  catch(e){ ROWS=ROWS.filter(x=>x.id!==row.id); render(); toast("Échec : "+e.message,true); }
 }
 function val(id){return document.getElementById(id).value;}
 
@@ -679,7 +730,37 @@ function filtered(){
    RENDU
    ============================================================ */
 let charts={};
+const KPIS=[
+  {key:"total",   label:"Total",          color:"--accent"},
+  {key:"attente", label:"En attente",     color:"--s-attente", count:r=>r.statut==="En attente",     apply:{fStatut:"En attente"}},
+  {key:"prep",    label:"En préparation", color:"--s-prep",    count:r=>r.statut==="En préparation", apply:{fStatut:"En préparation"}},
+  {key:"exp",     label:"Expédiés",       color:"--s-expedie", count:r=>r.expedition==="Oui",        apply:{fExp:"Oui"}},
+  {key:"livre",   label:"Livrés",         color:"--s-livre",   count:r=>r.livraison==="Oui",         apply:{fLiv:"Oui"}},
+];
+function renderKPIs(){
+  const box=document.getElementById("kpis");
+  const base=ROWS.filter(r=>!r.supprime);
+  box.innerHTML=KPIS.map(k=>{
+    const n=k.count?base.filter(k.count).length:base.length;
+    const c=getCSS(k.color);
+    const active=k.apply && Object.entries(k.apply).every(([id,v])=>val(id)===v);
+    return `<div class="kpi ${active?'active':''}" data-k="${k.key}">
+      <div class="kpi-top"><span class="kdot" style="background:${c}"></span><span class="klabel">${k.label}</span></div>
+      <div class="kval" style="color:${k.key==='total'?'var(--ink)':c}">${n}</div>
+    </div>`;
+  }).join("");
+  box.querySelectorAll(".kpi").forEach(el=>{
+    el.onclick=()=>{
+      const k=KPIS.find(x=>x.key===el.dataset.k);
+      const already = k.apply && Object.entries(k.apply).every(([id,v])=>val(id)===v);
+      ["fStatut","fExp","fLiv"].forEach(id=>document.getElementById(id).value="");
+      if(k.apply && !already) Object.entries(k.apply).forEach(([id,v])=>document.getElementById(id).value=v);
+      render();
+    };
+  });
+}
 function render(){
+  renderKPIs();
   const rows=filtered();
   document.getElementById("countN").textContent=rows.length;
   refreshClientList();
@@ -699,10 +780,9 @@ function renderTable(rows){
   document.getElementById("tableEmpty").classList.toggle("hidden",rows.length>0);
   tb.innerHTML = rows.map(r=>`
     <tr data-id="${r.id}" class="${r.id===justAddedId?'flash':''}" onclick="openEdit('${r.id}')">
-      <td class="mono muted">${frDate(r.date)}</td>
+      <td><div class="cell-client"><span class="cc-name">${esc(r.client)}</span><span class="cc-date mono">${frDate(r.date)}</span></div></td>
       <td><span class="resp-pill"><span class="avatar" style="background:${AVATAR_COLORS[r.responsable]||'#8e8e93'}">${initials(r.responsable)}</span>${esc(r.responsable)}</span></td>
       <td><span class="type-tag">${esc(r.type)}</span></td>
-      <td style="font-weight:600">${esc(r.client)}</td>
       <td class="mono muted">${esc(r.devis)||"—"}</td>
       <td>${badge(r.statut)}</td>
       <td>${r.expedition==="Oui"?"<span class='oui'>Oui</span>":"<span class='non'>—</span>"}</td>
@@ -752,7 +832,8 @@ function renderKanban(rows){
     col.addEventListener("drop",async e=>{
       e.preventDefault();col.classList.remove("drag-over");
       const r=ROWS.find(x=>x.id===dragId);
-      if(r && r.statut!==s.name){ r.statut=s.name; try{await api("update",{row:r}); toast("Statut → "+s.name);}catch(err){toast("Échec : "+err.message,true);} render(); }
+      if(r && r.statut!==s.name){ const old=r.statut; r.statut=s.name; render(); toast("Statut → "+s.name);
+        try{await api("update",{row:r});}catch(err){r.statut=old; render(); toast("Échec : "+err.message,true);} }
     });
     wrap.appendChild(col);
   });
@@ -859,14 +940,16 @@ async function saveEdit(){
     client:g("eClient").trim(),devis:g("eDevis").trim(),commande:g("eCmd").trim(),
     tracking:g("eTrack").trim(),expedition:tog("eExp"),livraison:tog("eLiv"),notes:g("eNotes").trim()
   });
-  try{ await api("update",{row:r}); toast("Modifications enregistrées"); closeEdit(); render(); }
-  catch(e){ toast("Échec : "+e.message,true); }
+  closeEdit(); render(); toast("Modifications enregistrées");
+  try{ await api("update",{row:r}); }
+  catch(e){ toast("Échec : "+e.message,true); reload(); }
 }
 async function delRow(){
   if(!confirm("Supprimer cette ligne ? (conservée dans le journal)"))return;
-  const id=editingId;
-  try{ await api("delete",{id}); ROWS=ROWS.filter(x=>x.id!==id); toast("Ligne supprimée"); closeEdit(); render(); }
-  catch(e){ toast("Échec : "+e.message,true); }
+  const id=editingId; const backup=ROWS.slice();
+  ROWS=ROWS.filter(x=>x.id!==id); closeEdit(); render(); toast("Ligne supprimée");
+  try{ await api("delete",{id}); }
+  catch(e){ ROWS=backup; render(); toast("Échec : "+e.message,true); }
 }
 
 /* ---------- Toast ---------- */
@@ -875,6 +958,102 @@ function toast(msg,err){
   const t=document.getElementById("toast");
   t.textContent=msg; t.className="show"+(err?" err":"");
   clearTimeout(toastT); toastT=setTimeout(()=>t.className=t.className.replace("show",""),2400);
+}
+
+/* ============================================================
+   SAISIE ÉCLAIR — mini-fenêtre flottante toujours au-dessus
+   (Document Picture-in-Picture ; repli : petite fenêtre popup)
+   ============================================================ */
+async function openEclair(){
+  if(pipWin && !pipWin.closed){ try{pipWin.focus();}catch(e){} return; }
+  if("documentPictureInPicture" in window){
+    try{
+      pipWin = await documentPictureInPicture.requestWindow({width:340, height:470});
+      pipWin.document.title = "Saisie éclair";
+      pipWin.document.body.style.margin = "0";
+      buildEclairInto(pipWin.document);
+      pipWin.addEventListener("pagehide", ()=>{ pipWin=null; });
+      return;
+    }catch(e){ /* on bascule sur le repli */ }
+  }
+  const w = window.open(location.pathname + "?eclair=1", "eclairADV", "width=360,height=490");
+  if(!w) toast("Autorisez les fenêtres popup pour la saisie éclair.", true);
+}
+
+function copyStyles(win){
+  [...document.styleSheets].forEach(ss=>{
+    try{
+      const css=[...ss.cssRules].map(r=>r.cssText).join("");
+      const st=win.document.createElement("style"); st.textContent=css; win.document.head.appendChild(st);
+    }catch(e){
+      if(ss.href){ const l=win.document.createElement("link"); l.rel="stylesheet"; l.href=ss.href; win.document.head.appendChild(l); }
+    }
+  });
+}
+
+function buildEclairInto(doc){
+  const win = doc.defaultView;
+  if(doc !== document) copyStyles(win);
+  const clients=[...new Set(ROWS.filter(r=>!r.supprime).map(r=>r.client).filter(Boolean))].sort();
+  const box = doc.createElement("div");
+  box.className="eclair-body";
+  box.innerHTML = `
+    <div class="ecl-head">
+      <b>Saisie éclair</b>
+      <span class="ecl-who"><select id="eclUser">${TEAM.map(n=>`<option ${n===currentUser?"selected":""}>${n}</option>`).join("")}</select></span>
+    </div>
+    <div class="ecl-form">
+      <select id="eclType">${TYPES.map(t=>`<option>${esc(t)}</option>`).join("")}</select>
+      <input id="eclClient" list="eclClients" placeholder="Client" autocomplete="off">
+      <datalist id="eclClients">${clients.map(c=>`<option value="${esc(c)}">`).join("")}</datalist>
+      <input id="eclDevis" class="mono" placeholder="Devis (optionnel)">
+      <div class="cap-seg" id="eclSeg"></div>
+      <input id="eclTrack" class="mono" placeholder="N° UPS (optionnel)">
+      <button class="ecl-add" id="eclAdd">＋ Ajouter</button>
+    </div>
+    <div class="ecl-recent"><h5>Derniers ajouts</h5><div id="eclRecent"></div></div>`;
+  doc.body.appendChild(box);
+
+  // Toggle de statut (en deux)
+  let eclStatut = "En préparation";
+  const seg = doc.getElementById("eclSeg");
+  [["En attente","--s-attente"],["En préparation","--s-prep"]].forEach(([v,cv])=>{
+    const b=doc.createElement("button"); b.type="button"; b.textContent=v; b.dataset.v=v; b.dataset.cv=cv;
+    b.onclick=()=>{ eclStatut=v; seg.querySelectorAll("button").forEach(x=>{const on=x.dataset.v===v;x.classList.toggle("on",on);x.style.background=on?getCSS(x.dataset.cv):"transparent";}); };
+    seg.appendChild(b);
+  });
+  seg.querySelector('button[data-v="En préparation"]').click();
+
+  const submit = async ()=>{
+    const client = doc.getElementById("eclClient").value.trim();
+    if(!client){ doc.getElementById("eclClient").focus(); return; }
+    const row={
+      id:"R"+Date.now().toString(36)+Math.floor(Math.random()*1000),
+      date:todayISO(), responsable:doc.getElementById("eclUser").value,
+      type:doc.getElementById("eclType").value, client,
+      devis:doc.getElementById("eclDevis").value.trim(), commande:"",
+      statut:eclStatut, notes:"", expedition:"Non", livraison:"Non",
+      tracking:doc.getElementById("eclTrack").value.trim(), supprime:""
+    };
+    ROWS.push(row); justAddedId=row.id;
+    ["eclClient","eclDevis","eclTrack"].forEach(id=>doc.getElementById(id).value="");
+    doc.getElementById("eclClient").focus();
+    renderEclairRecent(doc);
+    if(!ECLAIR_MODE) render();     // met à jour le dashboard principal (même contexte, cas PiP)
+    try{ await api("add",{row}); }
+    catch(e){ ROWS=ROWS.filter(x=>x.id!==row.id); renderEclairRecent(doc); if(!ECLAIR_MODE) render(); }
+  };
+  doc.getElementById("eclAdd").onclick=submit;
+  ["eclClient","eclTrack"].forEach(id=>doc.getElementById(id).addEventListener("keydown",e=>{if(e.key==="Enter")submit();}));
+  doc.getElementById("eclClient").focus();
+  renderEclairRecent(doc);
+}
+
+function renderEclairRecent(doc){
+  const box=doc.getElementById("eclRecent"); if(!box) return;
+  const items=ROWS.filter(r=>!r.supprime).slice(-4).reverse();
+  if(!items.length){ box.innerHTML='<div class="ecl-empty">Rien pour l\'instant.</div>'; return; }
+  box.innerHTML=items.map(r=>`<div class="ecl-item"><span style="width:8px;height:8px;border-radius:50%;background:${statutColor(r.statut)};flex-shrink:0"></span><b style="color:var(--ink)">${esc(r.client)}</b> · ${esc(r.type)}</div>`).join("");
 }
 
 /* ============================================================

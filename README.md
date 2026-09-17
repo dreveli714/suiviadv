@@ -1,12 +1,15 @@
-# Suivi ADV — Tableau de bord
+# ADV Tracker — Dashboard
 
-Dashboard de seguimiento de actividades del equipo ADV (Solenne · Martina · Diana).
+Dashboard de seguimiento de actividades del equipo ADV (Solenne · Martina · Diana), **interfaz en inglés**.
 Frontend estático en GitHub Pages + base de datos real en Google Sheets vía Apps Script.
 
 - Acceso con **código de 3 dígitos**, sesión de **8 horas**.
-- Registro rápido, tabla filtrable, **Kanban** por estado, **gráficos**.
+- Registro rápido, tabla filtrable agrupada por día (Today / Yesterday), **gráficos**.
 - Cada **N° UPS** es un enlace directo al estado del envío.
 - **Journal** de trazabilidad: quién cambió qué y cuándo.
+- **Módulo Samples**: los comerciales (Jacopo · Hayet · Carlos · Natali) eligen referencias del catálogo (Reflectiv / Adheazy / Just in Print), con voz o texto («4 INT 200, 2 SOL 101»), cada envío tiene un **ID único (SMP-000X)**, genera un **PDF por marca para bodega**, y se puede enlazar ese ID en la tabla de comandas.
+
+> ⚠️ Si ya tenías el backend desplegado, al actualizar `Code.gs` debes **volver a implementar**: Apps Script → Implementar → Gestionar implementaciones → Editar (lápiz) → **Nueva versión**. Ejecuta `setup()` una vez más para crear la hoja **Samples** (y la columna **Sample ID** aparece sola en filas nuevas).
 
 ---
 

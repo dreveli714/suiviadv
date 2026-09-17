@@ -335,7 +335,7 @@ tr.group-row td{padding:16px 14px 7px;border-bottom:1px solid var(--line)}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <script>
 /* ============================================================ CONFIG */
-const CONFIG = { API_URL: "" };   // paste Apps Script /exec URL (see README)
+const CONFIG = { API_URL: "https://script.google.com/macros/s/AKfycbwkPgMHS5X-vjHFp6cnyCoyKTrCWc4xTScwSKTd2Il_S_KW6x3nMMl1_pwfsPJqVRc5pg/exec" };   // paste Apps Script /exec URL (see README)
 
 const TEAM = ["Solenne","Martina","Diana"];                 // ADV desk (who logs)
 const SAMPLE_COMMERCIALS = ["Jacopo","Hayet","Carlos","Natali"]; // sample reps
@@ -351,7 +351,12 @@ const AVATAR_COLORS = {Solenne:"#0071e3",Martina:"#5e5ce6",Diana:"#30b0c7",Jacop
 const BRAND_COLORS = {"Reflectiv":"var(--brand-ref)","Adheazy":"var(--brand-adh)","Just in Print":"var(--brand-jip)"};
 
 const CATALOG={"Reflectiv": {"Décoration – INT": ["INT 110", "INT 115", "INT 120", "INT 122", "INT 123", "INT 124", "INT 126", "INT 127", "INT 128", "INT 129", "INT 130", "INT 132", "INT 138", "INT 139", "INT 140", "INT 142", "INT 146", "INT 147", "INT 149", "INT 150", "INT 151", "INT 200", "INT 209", "INT 212", "INT 213", "INT 220", "INT 230", "INT 234", "INT 236", "INT 237", "INT 244", "INT 245", "INT 250", "INT 253", "INT 255", "INT 256", "INT 257", "INT 260", "INT 270", "INT 276", "INT 280", "INT 288", "INT 290", "INT 300", "INT 320", "INT 333", "INT 343", "INT 353", "INT 356", "INT 363", "INT 380", "INT 383", "INT 389", "INT 390", "INT 401", "INT 402", "INT 403", "INT 404", "INT 405", "INT 411", "INT 430", "INT 435", "INT 445", "INT 448", "INT 450", "INT 456", "INT 460", "INT 468", "INT 470", "INT 476", "INT 478", "INT 480", "INT 486", "INT 490", "INT 491", "INT 496", "INT 500", "INT 510", "INT 512", "INT 520", "INT 528", "INT 529", "INT 530", "INT 532", "INT 534", "INT 535", "INT 536", "INT 537", "INT 538", "INT 539", "INT 540", "INT 541", "INT 549", "INT 556", "INT 560", "INT 570", "INT 580", "INT 582", "INT 606", "INT 610", "INT 612", "INT 710", "INT 730", "INT 750", "INT 756", "INT 770", "INT 780", "INT 782", "INT 789", "INT 792", "INT 793", "INT 803", "INT 807", "INT 817", "INT 846", "INT 856", "INT 860", "INT 861", "INT 864", "INT 880", "INT 930", "INT 940"], "Décoration – Striés / Motifs / Couleur dégressive": ["STR 01", "STR 02", "STR 04", "STR 05", "STR 06", "STR 07", "STR 08", "STR 09", "STR 10", "DMD 06", "ORA 020", "PIN 020", "BLU 020", "GRE 020", "ORA 030", "PIN 030", "BLU 030", "GRE 030", "HGF 01", "TWY 100", "TWY 120", "TWY 130", "TWY 150", "TWY 160", "TWY 200", "TWY 280", "TWY 300", "TWY 400", "TWY 450", "TWY 600", "TWY 800"], "Couleurs": ["61276", "60487", "67047", "60685", "61185", "63545", "61214", "60894", "61011", "61052", "60366", "60026", "61133", "60193", "60259", "60210", "IRS 226", "DCH 326", "DCH 327", "DCH 426", "DCH 427"], "Statique": ["STC 160", "STC 190", "STC 220", "STC 250", "STC 280", "STC 310", "STC 340", "STC 370", "STC 400", "STC 430", "STC 510", "STC 520", "STC 530", "STC 540", "STC 550", "STC 560", "STC 570", "STC 580", "STC 590"], "Home staging – Pierre": ["STN 281", "STN 282", "STN 283", "STN 284", "STN 285", "STN 286", "STN 483", "STN 485", "STN 491", "STN 492", "STN 493"], "Saison": ["ISO-VIT"], "Graphique": ["PERF 20", "PERF 40", "PERF 40 UV", "PRINT 1", "PRINT 2", "PRINT 3", "PRINT 20", "PRINT 30", "RFL 040", "WPM 211", "LAM G40", "LAM M40", "SKN D05", "SKN 07", "SKN 09", "SKN 12", "SKN 13", "SKN 17", "SKN 91", "WBM 231", "WHB 232", "WHB 234", "WHB 235", "WPA 320", "BLB 235", "TRB 232"], "Protection solaire": ["SOL 101", "SOL 102", "SOL 108", "SOL 111", "SOL 112", "SOL 115", "SOL 116", "SOL 141", "SOL 142", "SOL 145", "SOL 150", "SOL 152", "SOL 158", "SOL 160", "SOL 162", "SOL 251", "SOL 171", "SOL 172", "SOL 275", "SOL 332", "ATH 101"], "Protection solaire – Infrarouge": ["IR 50", "IR 50X", "IR 70", "IR 70X", "IR 80", "IR 80X", "IR 82", "IR 82X", "IR 95", "IR 95X", "TC 98"], "Protection UV": ["UVA 151", "UVA 152", "UVB 460"], "Sécurité": ["AFG 100", "AGI 50", "AGI 100", "AGI 200", "AGM 400", "AGR 100", "DOS 060", "PTB 50", "TEC 200", "SEC 052", "SEC 052X", "SEC 054", "SEC 054X", "SEC 058", "SEC 058X", "TOP 300", "TOP 300R", "TOP 300X", "TOP 300XR"], "Sécurité – Visualisation": ["VISUAL 05", "VISUAL 06", "VISUAL 12", "VISUAL 20", "VISUAL 44", "VISUAL 50", "VISUAL 56", "VISUAL 60"], "Miroir": ["MDN 500", "MDN 500X", "MIR 200", "MIR 500", "MIR 500X", "MIR 501", "MIR 502", "MIR 503", "MIR 504", "MIR 505", "MIR 800", "MIR 900", "MIX 551"], "Innovant": ["ARF 100", "ELC 200", "ELC 201", "ELC 202", "ELC 203", "ELC 204", "ELC 205", "HPC 50", "HPC 100", "HPC 200", "SCR 360"], "Photoluminescence": ["LUM 06", "LUM 10"], "Automobile – Photochromique / Bodyshield": ["FOTO 200", "FOTO 450", "BDS 300", "BDS 700"], "Automobile – Teinté C": ["AUT C10", "AUT C15", "AUT C20", "AUT C25", "AUT C35", "AUT C50", "AUT C70", "AUT C83"], "Automobile – Teinté P": ["AUT P05", "AUT P10", "AUT P15", "AUT P20", "AUT P25", "AUT P35", "AUT P50", "AUT P70", "AUT P83"], "Automobile – Teinté S / D": ["AUT S05", "AUT D05", "AUT D10", "AUT D15", "AUT D20", "AUT D25", "AUT D35", "AUT D50", "AUT D70", "AUT D83"], "Automobile – Céramique EXLB": ["EXLB 05", "EXLB 10", "EXLB 15", "EXLB 20", "EXLB 25", "EXLB 35", "EXLB 50", "EXLB 52", "EXLB 70", "EXLB 83"]}, "Just in Print": {"Vinyles adhésifs": ["JIM 120HT", "JIM 120HTM", "JIM 120 TAV", "JIM 130", "JIM 130M", "JIP 170", "JIP 170B", "JIP 180", "JIT 120 ECT", "JIT 120 EC Blanc"], "Films DTF et Transfert": ["DTF Film A", "DTF Film B", "TRF 120"], "Bâches et Textiles": ["MSH 1011", "BCH 1010", "BKL 180"]}, "Adheazy": {"Références (saisie manuelle)": []}};
-const POPULAR=["INT 200", "INT 256", "INT 280", "INT 356", "INT 411", "INT 456", "INT 756", "INT 556", "STR 05", "STR 06", "STR 08", "INT 126", "INT 127", "INT 128", "INT 129", "INT 138", "INT 139", "INT 146", "INT 147", "HGF 01", "INT 383", "INT 389", "INT 390", "BLU 020", "ORA 020", "PIN 020", "DCH 326", "DCH 426", "IR 50", "IR 80", "IR 82", "IR 95", "ATH 101", "SOL 101", "SOL 111", "SOL 251", "SOL 275", "UVB 460", "SOL 116", "SOL 332", "MIR 900", "MDN 500", "MDN 500X", "TC 98", "HPC 100", "PRINT 3", "SKN D05", "SKN 07", "SKN 09", "SKN 12", "SKN 13", "SKN 17", "SKN 91", "SEC 058", "SEC 054", "PERF 40 UV"];
+const POPULAR=["INT 200","INT 256","INT 280","INT 356","INT 411","INT 456","INT 756","INT 556","STR 05","STR 06","STR 08","INT 126","INT 127","INT 128","INT 129","INT 138","INT 139","INT 146","INT 147","HGF 01","INT 383","INT 389","INT 390","BLU 020","ORA 020","PIN 020","DCH 326","DCH 426","IR 50","IR 80","IR 82","IR 95","ATH 101","SOL 101","SOL 111","SOL 114","SOL 251","SOL 275","SOL 332","UVB 460","SOL 116","MIR 900","MDN 500","MDN 500X","TC 98","HPC 50","HPC 100","PRINT 3","SKN D05","SKN 07","SKN 09","SKN 12","SKN 13","SKN 17","SKN 91","SEC 058","SEC 054","PERF 40 UV"];
+const GAMMIER_DECO=["INT 110","INT 115","INT 120","INT 122","INT 126","INT 127","INT 128","INT 129","INT 130","INT 132","INT 138","INT 139","INT 146","INT 147","INT 150","INT 151","INT 200","INT 209","INT 212","INT 213","INT 230","INT 234","INT 245","INT 250","INT 253","INT 256","INT 260","INT 270","INT 276","INT 280","INT 288","INT 290","INT 300","INT 320","INT 333","INT 343","INT 353","INT 356","INT 363","INT 380","INT 383","INT 389","INT 390","INT 401","INT 411","INT 430","INT 435","INT 445","INT 448","INT 450","INT 456","INT 460","INT 470","INT 476","INT 478","INT 480","INT 500","INT 510","INT 520","INT 530","INT 535","INT 536","INT 540","INT 541","INT 549","INT 556","INT 560","INT 570","INT 580","INT 606","INT 610","INT 612","INT 710","INT 730","INT 750","INT 756","INT 770","INT 780","INT 803","INT 807","INT 817","INT 846","INT 856","INT 860","INT 861","INT 864","INT 880","INT 930","INT 940","STR 01","STR 02","STR 04","STR 05","STR 06","STR 07","STR 08","STR 09","STR 10","DMD 06","HGF 01","ORA 020","PIN 020","BLU 020","GRE 020"];
+const GAMMIER_BAT=["SOL 101","SOL 102","SOL 108","SOL 111","SOL 112","SOL 114","SOL 115","SOL 116","SOL 141","SOL 142","SOL 145","SOL 150","SOL 152","SOL 158","SOL 160","SOL 162","SOL 171","SOL 172","SOL 251","SOL 275","SOL 332","ATH 101","IR 50","IR 50X","IR 70","IR 70X","IR 80","IR 80X","IR 82","IR 82X","IR 95","IR 95X","TC 98","UVA 151","UVB 460","SEC 052","SEC 054","SEC 058","TOP 300","MIR 500","MIR 501","MDN 500","MIX 551","AFG 100","AGI 100","AGI 200"];
+const GAMMIER_ADHEAZY=[];
+const CATALOGUE_JIP=["JIM 120HT","JIM 120HTM","JIM 120 TAV","JIM 130","JIM 130M","JIP 170","JIP 170B","JIP 180","JIT 120 ECT","JIT 120 EC Blanc","DTF Film A","DTF Film B","TRF 120","MSH 1011","BCH 1010","BKL 180"];
+const PRESET_TABS={"Popular":POPULAR,"Gammier Décoration":GAMMIER_DECO,"Gammier Bâtiment":GAMMIER_BAT,"Gammier Adheazy":GAMMIER_ADHEAZY,"Catalogue JIP":CATALOGUE_JIP};
 
 /* Flatten catalog for lookup */
 const FLAT=[]; const NORM={};
@@ -661,7 +666,7 @@ function closeBuilder(){document.getElementById("smpBuilder").classList.add("hid
 function clientOptions(){return [...new Set([...SAMPLES.map(s=>s.client),...ROWS.map(r=>r.client)].filter(Boolean))].sort();}
 
 function renderBuilder(){
-  const brands=["Popular",...Object.keys(CATALOG)];
+  const brands=[...Object.keys(PRESET_TABS),...Object.keys(CATALOG)];
   document.getElementById("smpBuilder").innerHTML=`
   <div class="builder">
     <div class="builder-head">
@@ -685,7 +690,7 @@ function renderBuilder(){
           </div>
           <div id="aiUnmatched"></div>
         </div>
-        <div class="brand-tabs" id="brandTabs">${brands.map(b=>`<button data-b="${esc(b)}" class="${b===B.brandTab?'on':''}" style="${b===B.brandTab?('background:'+(b==='Popular'?'var(--accent)':(BRAND_COLORS[b]||'var(--accent)'))):''}">${esc(b)}</button>`).join("")}</div>
+        <div class="brand-tabs" id="brandTabs">${brands.map(b=>`<button data-b="${esc(b)}" class="${b===B.brandTab?'on':''}" style="${b===B.brandTab?('background:'+(BRAND_COLORS[b]||'var(--accent)')+''):''}">${esc(b)}</button>`).join("")}</div>
         <input class="cat-search" id="catSearch" placeholder="Search reference (INT 200, SOL...)" value="${esc(B.search)}">
         <div id="catBody"></div>
       </div>
@@ -723,8 +728,13 @@ function renderCatBody(){
     body.innerHTML=`<div class="fam"><div class="fam-body">${hits.map(o=>`<div class="ref-chip ${selRefs.has(o.ref)?'sel':''}" onclick="addItem('${escq(o.ref)}')">${esc(o.ref)}</div>`).join("")||"<span class='muted'>No match</span>"}</div></div>`;
     return;
   }
-  if(B.brandTab==="Popular"){
-    body.innerHTML=`<div class="fam"><div class="fam-body">${POPULAR.map(ref=>`<div class="ref-chip ${selRefs.has(ref)?'sel':''}" onclick="addItem('${escq(ref)}')">${esc(ref)}</div>`).join("")}</div></div>`;
+  if(PRESET_TABS[B.brandTab]!==undefined){
+    const preset=PRESET_TABS[B.brandTab];
+    if(preset.length===0){
+      body.innerHTML=`<div class="fam"><div class="fam-body"><div class="manual-add"><input id="adhInput" placeholder="Type a reference..."><button onclick="addManualBrand('${escq(B.brandTab)}')">Add</button></div></div></div>`;
+    } else {
+      body.innerHTML=`<div class="fam"><div class="fam-body">${preset.map(ref=>`<div class="ref-chip ${selRefs.has(ref)?'sel':''}" onclick="addItem('${escq(ref)}')">${esc(ref)}</div>`).join("")}</div></div>`;
+    }
     return;
   }
   const fams=CATALOG[B.brandTab]||{};
@@ -732,12 +742,14 @@ function renderCatBody(){
   for(const fam in fams){
     const refs=fams[fam];
     const isAdheazy=(B.brandTab==="Adheazy");
-    html+=`<div class="fam"><div class="fam-head" onclick="this.nextElementSibling.classList.toggle('hidden')">${esc(fam)}<span class="fc">${refs.length} refs</span></div><div class="fam-body">${refs.map(ref=>`<div class="ref-chip ${selRefs.has(ref)?'sel':''}" onclick="addItem('${escq(ref)}')">${esc(ref)}</div>`).join("")}${isAdheazy?`<div class="manual-add"><input id="adhInput" placeholder="Type an Adheazy ref..."><button onclick="addManual()">Add</button></div>`:""}</div></div>`;
+    html+=`<div class="fam"><div class="fam-head" onclick="this.nextElementSibling.classList.toggle('hidden')">${esc(fam)}<span class="fc">${refs.length} refs</span></div><div class="fam-body">${refs.map(ref=>`<div class="ref-chip ${selRefs.has(ref)?'sel':''}" onclick="addItem('${escq(ref)}')">${esc(ref)}</div>`).join("")}</div></div>`;
   }
+  html+=`<div class="fam"><div class="fam-head" onclick="this.nextElementSibling.classList.toggle('hidden')">Others (manual entry)<span class="fc">custom</span></div><div class="fam-body"><div class="manual-add"><input id="adhInput" placeholder="New reference..."><button onclick="addManualBrand('${escq(B.brandTab)}')">Add</button></div></div></div>`;
   body.innerHTML=html;
 }
 function escq(s){return String(s).replace(/'/g,"\\'");}
 function addManual(){const el=document.getElementById("adhInput");if(!el)return;const v=el.value.trim();if(!v)return;addItemRaw({ref:v,brand:"Adheazy",cat:"Manual"});el.value="";}
+function addManualBrand(brand){const el=document.getElementById("adhInput");if(!el)return;const v=el.value.trim();if(!v)return;addItemRaw({ref:v,brand:brand,cat:"Manual"});el.value="";}
 function addItem(ref){const o=NORM[normref(ref)]||NORM[nospace(ref)];if(o)addItemRaw(o);}
 function addItemRaw(o){const ex=B.items.find(i=>i.ref===o.ref);if(ex)ex.qty++;else B.items.push({ref:o.ref,brand:o.brand,cat:o.cat,qty:1,obs:""});renderSel();renderCatBody();}
 function renderSel(){
@@ -776,16 +788,28 @@ function parseAi(){
   document.getElementById("aiText").value="";
 }
 function parseSamplesText(raw){
-  const chunks=String(raw).split(/[\n,;]+|\bet\b|\band\b|\by\b/i).map(s=>s.trim()).filter(Boolean);
+  // Split on newlines, commas, semicolons, "and", "et", "y", or multiple spaces acting as separators
+  const chunks=String(raw).split(/[\n\r,;]+|\bet\b|\band\b|\by\b/i).map(s=>s.trim()).filter(Boolean);
   let added=0;const unmatched=[];
   chunks.forEach(ch=>{
     let qty=1,refpart=ch;
+    // "4 INT 200" or "4x INT 200" or "4 x INT200"
     let m=ch.match(/^(\d+)\s*[x\u00d7]?\s+(.+)$/i);
     if(m){qty=parseInt(m[1],10);refpart=m[2];}
-    else{m=ch.match(/^(.+?)\s*[x\u00d7]\s*(\d+)$/i);if(m){refpart=m[1];qty=parseInt(m[2],10);}}
+    else{
+      // "INT 200 x3" or "INT200x3" or "INT 200 3"
+      m=ch.match(/^(.+?)\s*[x\u00d7]\s*(\d+)$/i);
+      if(m){refpart=m[1];qty=parseInt(m[2],10);}
+      else{
+        // "INT200 3" (ref followed by just a number)
+        m=ch.match(/^([A-Za-z]{2,4}\s?\d{2,4}\s?[A-Za-z]{0,3})\s+(\d+)$/);
+        if(m){refpart=m[1];qty=parseInt(m[2],10);}
+      }
+    }
+    refpart=refpart.replace(/[.\-]/g," ").trim();
     const o=NORM[normref(refpart)]||NORM[nospace(refpart)];
     if(o){const ex=B.items.find(i=>i.ref===o.ref);if(ex)ex.qty+=qty;else B.items.push({ref:o.ref,brand:o.brand,cat:o.cat,qty,obs:""});added++;}
-    else unmatched.push(refpart);
+    else if(refpart.length>1) unmatched.push(refpart);
   });
   return {added,unmatched};
 }
@@ -796,7 +820,7 @@ function toggleMic(){
   const btn=document.getElementById("micBtn");
   if(!SR){toast("Voice not supported in this browser (use Chrome).",true);return;}
   if(recActive){recog&&recog.stop();return;}
-  recog=new SR();recog.lang="fr-FR";recog.interimResults=true;recog.continuous=true;
+  recog=new SR();recog.lang="en-US";recog.interimResults=true;recog.continuous=true;
   let finalTxt=document.getElementById("aiText").value;
   recog.onstart=()=>{recActive=true;btn.classList.add("rec");btn.textContent="\u25A0 Stop";};
   recog.onerror=()=>{};

@@ -364,6 +364,7 @@ const STATUTS = [
 const STATUTS_MAIN = ["Pending","In preparation"];
 const AVATAR_COLORS = {Solenne:"#0071e3",Martina:"#5e5ce6",Diana:"#30b0c7",Jacopo:"#0071e3",Hayet:"#ff9f0a",Carlos:"#34c759",Natali:"#5e5ce6"};
 const BRAND_COLORS = {"Reflectiv":"var(--brand-ref)","Adheazy":"var(--brand-adh)","Just in Print":"var(--brand-jip)"};
+function brandTabColor(b){return({"Reflectiv":"#0071e3","Just in Print":"#34c759","Adheazy":"#ff9f0a","Others":"#8e8e93","Popular":"#0071e3"})[b]||"#0071e3";}
 
 const CATALOG={"Reflectiv": {"Décoration – INT": ["INT 110", "INT 115", "INT 120", "INT 122", "INT 123", "INT 124", "INT 126", "INT 127", "INT 128", "INT 129", "INT 130", "INT 132", "INT 138", "INT 139", "INT 140", "INT 142", "INT 146", "INT 147", "INT 149", "INT 150", "INT 151", "INT 200", "INT 209", "INT 212", "INT 213", "INT 220", "INT 230", "INT 234", "INT 236", "INT 237", "INT 244", "INT 245", "INT 250", "INT 253", "INT 255", "INT 256", "INT 257", "INT 260", "INT 270", "INT 276", "INT 280", "INT 288", "INT 290", "INT 300", "INT 320", "INT 333", "INT 343", "INT 353", "INT 356", "INT 363", "INT 380", "INT 383", "INT 389", "INT 390", "INT 401", "INT 402", "INT 403", "INT 404", "INT 405", "INT 411", "INT 430", "INT 435", "INT 445", "INT 448", "INT 450", "INT 456", "INT 460", "INT 468", "INT 470", "INT 476", "INT 478", "INT 480", "INT 486", "INT 490", "INT 491", "INT 496", "INT 500", "INT 510", "INT 512", "INT 520", "INT 528", "INT 529", "INT 530", "INT 532", "INT 534", "INT 535", "INT 536", "INT 537", "INT 538", "INT 539", "INT 540", "INT 541", "INT 549", "INT 556", "INT 560", "INT 570", "INT 580", "INT 582", "INT 606", "INT 610", "INT 612", "INT 710", "INT 730", "INT 750", "INT 756", "INT 770", "INT 780", "INT 782", "INT 789", "INT 792", "INT 793", "INT 803", "INT 807", "INT 817", "INT 846", "INT 856", "INT 860", "INT 861", "INT 864", "INT 880", "INT 930", "INT 940"], "Décoration – Striés / Motifs / Couleur dégressive": ["STR 01", "STR 02", "STR 04", "STR 05", "STR 06", "STR 07", "STR 08", "STR 09", "STR 10", "DMD 06", "ORA 020", "PIN 020", "BLU 020", "GRE 020", "ORA 030", "PIN 030", "BLU 030", "GRE 030", "HGF 01", "TWY 100", "TWY 120", "TWY 130", "TWY 150", "TWY 160", "TWY 200", "TWY 280", "TWY 300", "TWY 400", "TWY 450", "TWY 600", "TWY 800"], "Couleurs": ["61276", "60487", "67047", "60685", "61185", "63545", "61214", "60894", "61011", "61052", "60366", "60026", "61133", "60193", "60259", "60210", "IRS 226", "DCH 326", "DCH 327", "DCH 426", "DCH 427"], "Statique": ["STC 160", "STC 190", "STC 220", "STC 250", "STC 280", "STC 310", "STC 340", "STC 370", "STC 400", "STC 430", "STC 510", "STC 520", "STC 530", "STC 540", "STC 550", "STC 560", "STC 570", "STC 580", "STC 590"], "Home staging – Pierre": ["STN 281", "STN 282", "STN 283", "STN 284", "STN 285", "STN 286", "STN 483", "STN 485", "STN 491", "STN 492", "STN 493"], "Saison": ["ISO-VIT"], "Graphique": ["PERF 20", "PERF 40", "PERF 40 UV", "PRINT 1", "PRINT 2", "PRINT 3", "PRINT 20", "PRINT 30", "RFL 040", "WPM 211", "LAM G40", "LAM M40", "SKN D05", "SKN 07", "SKN 09", "SKN 12", "SKN 13", "SKN 17", "SKN 91", "WBM 231", "WHB 232", "WHB 234", "WHB 235", "WPA 320", "BLB 235", "TRB 232"], "Protection solaire": ["SOL 101", "SOL 102", "SOL 108", "SOL 111", "SOL 112", "SOL 115", "SOL 116", "SOL 141", "SOL 142", "SOL 145", "SOL 150", "SOL 152", "SOL 158", "SOL 160", "SOL 162", "SOL 251", "SOL 171", "SOL 172", "SOL 275", "SOL 332", "ATH 101"], "Protection solaire – Infrarouge": ["IR 50", "IR 50X", "IR 70", "IR 70X", "IR 80", "IR 80X", "IR 82", "IR 82X", "IR 95", "IR 95X", "TC 98"], "Protection UV": ["UVA 151", "UVA 152", "UVB 460"], "Sécurité": ["AFG 100", "AGI 50", "AGI 100", "AGI 200", "AGM 400", "AGR 100", "DOS 060", "PTB 50", "TEC 200", "SEC 052", "SEC 052X", "SEC 054", "SEC 054X", "SEC 058", "SEC 058X", "TOP 300", "TOP 300R", "TOP 300X", "TOP 300XR"], "Sécurité – Visualisation": ["VISUAL 05", "VISUAL 06", "VISUAL 12", "VISUAL 20", "VISUAL 44", "VISUAL 50", "VISUAL 56", "VISUAL 60"], "Miroir": ["MDN 500", "MDN 500X", "MIR 200", "MIR 500", "MIR 500X", "MIR 501", "MIR 502", "MIR 503", "MIR 504", "MIR 505", "MIR 800", "MIR 900", "MIX 551"], "Innovant": ["ARF 100", "ELC 200", "ELC 201", "ELC 202", "ELC 203", "ELC 204", "ELC 205", "HPC 50", "HPC 100", "HPC 200", "SCR 360"], "Photoluminescence": ["LUM 06", "LUM 10"], "Automobile – Photochromique / Bodyshield": ["FOTO 200", "FOTO 450", "BDS 300", "BDS 700"], "Automobile – Teinté C": ["AUT C10", "AUT C15", "AUT C20", "AUT C25", "AUT C35", "AUT C50", "AUT C70", "AUT C83"], "Automobile – Teinté P": ["AUT P05", "AUT P10", "AUT P15", "AUT P20", "AUT P25", "AUT P35", "AUT P50", "AUT P70", "AUT P83"], "Automobile – Teinté S / D": ["AUT S05", "AUT D05", "AUT D10", "AUT D15", "AUT D20", "AUT D25", "AUT D35", "AUT D50", "AUT D70", "AUT D83"], "Automobile – Céramique EXLB": ["EXLB 05", "EXLB 10", "EXLB 15", "EXLB 20", "EXLB 25", "EXLB 35", "EXLB 50", "EXLB 52", "EXLB 70", "EXLB 83"]}, "Just in Print": {"Vinyles adhésifs": ["JIM 120HT", "JIM 120HTM", "JIM 120 TAV", "JIM 130", "JIM 130M", "JIP 170", "JIP 170B", "JIP 180", "JIT 120 ECT", "JIT 120 EC Blanc"], "Films DTF et Transfert": ["DTF Film A", "DTF Film B", "TRF 120"], "Bâches et Textiles": ["MSH 1011", "BCH 1010", "BKL 180"]}, "Adheazy": {"Références (saisie manuelle)": []}};
 const POPULAR=["INT 200","INT 256","INT 280","INT 356","INT 411","INT 456","INT 756","INT 556","STR 05","STR 06","STR 08","INT 126","INT 127","INT 128","INT 129","INT 138","INT 139","INT 146","INT 147","HGF 01","INT 383","INT 389","INT 390","BLU 020","ORA 020","PIN 020","DCH 326","DCH 426","IR 50","IR 80","IR 82","IR 95","ATH 101","SOL 101","SOL 111","SOL 114","SOL 251","SOL 275","SOL 332","UVB 460","SOL 116","MIR 900","MDN 500","MDN 500X","TC 98","HPC 50","HPC 100","PRINT 3","SKN D05","SKN 07","SKN 09","SKN 12","SKN 13","SKN 17","SKN 91","SEC 058","SEC 054","PERF 40 UV"];
@@ -371,7 +372,8 @@ const GAMMIER_DECO=["INT 110","INT 115","INT 120","INT 122","INT 126","INT 127",
 const GAMMIER_BAT=["SOL 101","SOL 102","SOL 108","SOL 111","SOL 112","SOL 114","SOL 115","SOL 116","SOL 141","SOL 142","SOL 145","SOL 150","SOL 152","SOL 158","SOL 160","SOL 162","SOL 171","SOL 172","SOL 251","SOL 275","SOL 332","ATH 101","IR 50","IR 50X","IR 70","IR 70X","IR 80","IR 80X","IR 82","IR 82X","IR 95","IR 95X","TC 98","UVA 151","UVB 460","SEC 052","SEC 054","SEC 058","TOP 300","MIR 500","MIR 501","MDN 500","MIX 551","AFG 100","AGI 100","AGI 200"];
 const GAMMIER_ADHEAZY=[];
 const CATALOGUE_JIP=["JIM 120HT","JIM 120HTM","JIM 120 TAV","JIM 130","JIM 130M","JIP 170","JIP 170B","JIP 180","JIT 120 ECT","JIT 120 EC Blanc","DTF Film A","DTF Film B","TRF 120","MSH 1011","BCH 1010","BKL 180"];
-const PRESET_TABS={"Popular":POPULAR,"Catalogue":CATALOGUE_JIP.concat(GAMMIER_BAT).concat(GAMMIER_DECO),"Gammier Décoration":GAMMIER_DECO,"Gammier A5":GAMMIER_BAT,"Gammier A3":GAMMIER_DECO,"Gammier Adheazy":GAMMIER_ADHEAZY};
+const GAMMIER_AUTO=["AUT C10","AUT C15","AUT C20","AUT C25","AUT C35","AUT C50","AUT C70","AUT C83","AUT S05","AUT P05","AUT P10","AUT P15","AUT P20","AUT P25","AUT P35","AUT P50","AUT P70","AUT P83","AUT D05","AUT D10","AUT D15","AUT D20","AUT D25","AUT D35","AUT D50","AUT D70","AUT D83","EXLB 05","EXLB 10","EXLB 15","EXLB 20","EXLB 25","EXLB 35","EXLB 50","EXLB 52","EXLB 70","EXLB 83","FOTO 200","FOTO 450","BDS 300","BDS 700"];
+const OTHERS_FAMILIES={"Catalogue":CATALOGUE_JIP.concat(GAMMIER_BAT).concat(GAMMIER_DECO),"Gammier Décoration":GAMMIER_DECO,"Gammier A5":GAMMIER_BAT,"Gammier A3":GAMMIER_DECO,"Gammier Adheazy":GAMMIER_ADHEAZY,"Gammier Auto":GAMMIER_AUTO};
 
 /* Flatten catalog for lookup */
 const FLAT=[]; const NORM={};
@@ -755,7 +757,7 @@ function closeBuilder(){document.getElementById("smpBuilder").classList.add("hid
 function clientOptions(){return [...new Set([...SAMPLES.map(s=>s.client),...ROWS.map(r=>r.client)].filter(Boolean))].sort();}
 
 function renderBuilder(){
-  const brands=[...Object.keys(PRESET_TABS),...Object.keys(CATALOG)];
+  const brands=["Popular","Reflectiv","Just in Print","Adheazy","Others"];
   document.getElementById("smpBuilder").innerHTML=`
   <div class="builder">
     <div class="builder-head">
@@ -779,7 +781,7 @@ function renderBuilder(){
           </div>
           <div id="aiUnmatched"></div>
         </div>
-        <div class="brand-tabs" id="brandTabs">${brands.map(b=>`<button data-b="${esc(b)}" class="${b===B.brandTab?'on':''}" style="${b===B.brandTab?('background:'+(BRAND_COLORS[b]||'var(--accent)')+''):''}">${esc(b)}</button>`).join("")}</div>
+        <div class="brand-tabs" id="brandTabs">${brands.map(b=>`<button data-b="${esc(b)}" class="${b===B.brandTab?'on':''}" style="${b===B.brandTab?'background:'+brandTabColor(b):''}">${esc(b)}</button>`).join("")}</div>
         <input class="cat-search" id="catSearch" placeholder="Search reference (INT 200, SOL...)" value="${esc(B.search)}">
         <div id="catBody"></div>
       </div>
@@ -834,28 +836,52 @@ function renderCatBody(){
   const body=document.getElementById("catBody");if(!body)return;
   const selRefs=new Set(B.items.map(i=>i.ref));
   const q=normref(B.search);
-  if(q){ // search across all brands
+  const chipHtml=(ref)=>`<div class="ref-chip ${selRefs.has(ref)?'sel':''}" onclick="addItem('${escq(ref)}')">${esc(ref)}</div>`;
+  const manualHtml=(brand)=>`<div class="manual-add"><input id="adhInput" placeholder="Type a reference..."><button onclick="addManualBrand('${escq(brand)}')">Add</button></div>`;
+
+  // Global search
+  if(q){
     const hits=FLAT.filter(o=>nospace(o.ref).includes(nospace(q))||normref(o.ref).includes(q)).slice(0,120);
-    body.innerHTML=`<div class="fam"><div class="fam-body">${hits.map(o=>`<div class="ref-chip ${selRefs.has(o.ref)?'sel':''}" onclick="addItem('${escq(o.ref)}')">${esc(o.ref)}</div>`).join("")||"<span class='muted'>No match</span>"}</div></div>`;
+    body.innerHTML=`<div class="fam"><div class="fam-body">${hits.map(o=>chipHtml(o.ref)).join("")||"<span class='muted'>No match</span>"}</div></div>`;
     return;
   }
-  if(PRESET_TABS[B.brandTab]!==undefined){
-    const preset=PRESET_TABS[B.brandTab];
-    if(preset.length===0){
-      body.innerHTML=`<div class="fam"><div class="fam-body"><div class="manual-add"><input id="adhInput" placeholder="Type a reference..."><button onclick="addManualBrand('${escq(B.brandTab)}')">Add</button></div></div></div>`;
-    } else {
-      body.innerHTML=`<div class="fam"><div class="fam-body">${preset.map(ref=>`<div class="ref-chip ${selRefs.has(ref)?'sel':''}" onclick="addItem('${escq(ref)}')">${esc(ref)}</div>`).join("")}</div></div>`;
+
+  // Popular tab
+  if(B.brandTab==="Popular"){
+    body.innerHTML=`<div class="fam"><div class="fam-body">${POPULAR.map(ref=>chipHtml(ref)).join("")}</div></div>`;
+    return;
+  }
+
+  // Adheazy tab (manual only)
+  if(B.brandTab==="Adheazy"){
+    body.innerHTML=`<div class="fam"><div class="fam-body">${manualHtml("Adheazy")}</div></div>`;
+    return;
+  }
+
+  // Others tab: sub-families (gammiers, catalogue) + manual
+  if(B.brandTab==="Others"){
+    let html="";
+    for(const fam in OTHERS_FAMILIES){
+      const refs=OTHERS_FAMILIES[fam];
+      if(!refs.length){
+        html+=`<div class="fam"><div class="fam-head" onclick="this.nextElementSibling.classList.toggle('hidden')">${esc(fam)}<span class="fc">manual</span></div><div class="fam-body">${manualHtml(fam)}</div></div>`;
+      } else {
+        html+=`<div class="fam"><div class="fam-head" onclick="this.nextElementSibling.classList.toggle('hidden')">${esc(fam)}<span class="fc">${refs.length} refs</span></div><div class="fam-body hidden">${refs.map(ref=>chipHtml(ref)).join("")}</div></div>`;
+      }
     }
+    html+=`<div class="fam"><div class="fam-head" onclick="this.nextElementSibling.classList.toggle('hidden')">Other (manual entry)<span class="fc">custom</span></div><div class="fam-body">${manualHtml("Others")}</div></div>`;
+    body.innerHTML=html;
     return;
   }
+
+  // Reflectiv / Just in Print: catalog families
   const fams=CATALOG[B.brandTab]||{};
   let html="";
   for(const fam in fams){
     const refs=fams[fam];
-    const isAdheazy=(B.brandTab==="Adheazy");
-    html+=`<div class="fam"><div class="fam-head" onclick="this.nextElementSibling.classList.toggle('hidden')">${esc(fam)}<span class="fc">${refs.length} refs</span></div><div class="fam-body">${refs.map(ref=>`<div class="ref-chip ${selRefs.has(ref)?'sel':''}" onclick="addItem('${escq(ref)}')">${esc(ref)}</div>`).join("")}</div></div>`;
+    html+=`<div class="fam"><div class="fam-head" onclick="this.nextElementSibling.classList.toggle('hidden')">${esc(fam)}<span class="fc">${refs.length} refs</span></div><div class="fam-body hidden">${refs.map(ref=>chipHtml(ref)).join("")}</div></div>`;
   }
-  html+=`<div class="fam"><div class="fam-head" onclick="this.nextElementSibling.classList.toggle('hidden')">Others (manual entry)<span class="fc">custom</span></div><div class="fam-body"><div class="manual-add"><input id="adhInput" placeholder="New reference..."><button onclick="addManualBrand('${escq(B.brandTab)}')">Add</button></div></div></div>`;
+  html+=`<div class="fam"><div class="fam-head" onclick="this.nextElementSibling.classList.toggle('hidden')">Other (manual entry)<span class="fc">custom</span></div><div class="fam-body">${manualHtml(B.brandTab)}</div></div>`;
   body.innerHTML=html;
 }
 function escq(s){return String(s).replace(/'/g,"\\'");}

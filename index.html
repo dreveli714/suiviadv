@@ -872,7 +872,7 @@ function renderCatBody(){
   let html="";
   for(const fam in fams){
     const refs=fams[fam];
-    html+=`<div class="fam"><div class="fam-head" onclick="this.nextElementSibling.classList.toggle('hidden')">${esc(fam)}<span class="fc">${refs.length} refs</span></div><div class="fam-body hidden">${refs.map(ref=>chipHtml(ref)).join("")}</div></div>`;
+    html+=`<div class="fam"><div class="fam-head" onclick="this.nextElementSibling.classList.toggle('hidden')">${esc(fam)}<span class="fc">${refs.length} refs</span></div><div class="fam-body">${refs.map(ref=>chipHtml(ref)).join("")}</div></div>`;
   }
   const eid="ei"+Math.random().toString(36).slice(2,8);
   html+=`<div class="fam"><div class="fam-head" onclick="this.nextElementSibling.classList.toggle('hidden')">Other (manual entry)<span class="fc">custom</span></div><div class="fam-body"><div class="manual-add"><input id="${eid}" placeholder="New reference..." onkeydown="if(event.key==='Enter')doManualAdd('${eid}','${escq(B.brandTab)}')"><button onclick="doManualAdd('${eid}','${escq(B.brandTab)}')">Add</button></div></div></div>`;

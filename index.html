@@ -258,6 +258,7 @@ tr.group-row td{padding:16px 14px 7px;border-bottom:1px solid var(--line)}
       <button data-view="table" class="on">Table</button>
       <button data-view="charts">Charts</button>
       <button data-view="samples">Samples</button>
+      <button data-view="notes">Notes & Announcements</button>
     </div>
 
     <!-- ===== ORDERS (table + charts share this block) ===== -->
@@ -302,7 +303,6 @@ tr.group-row td{padding:16px 14px 7px;border-bottom:1px solid var(--line)}
 
       <div id="viewCharts" class="hidden">
         <div class="charts-grid">
-          <div class="chart-card"><h4>By status</h4><div class="cvs"><canvas id="chStatut"></canvas></div></div>
           <div class="chart-card"><h4>Activity per day</h4><div class="cvs"><canvas id="chDay"></canvas></div></div>
           <div class="chart-card"><h4>Top clients (entries)</h4><div class="cvs"><canvas id="chClient"></canvas></div></div>
         </div>
@@ -325,6 +325,21 @@ tr.group-row td{padding:16px 14px 7px;border-bottom:1px solid var(--line)}
       </div>
       <div id="smpBuilder" class="hidden"></div>
     </div>
+  
+    <!-- ===== NOTES & ANNOUNCEMENTS ===== -->
+    <div id="viewNotes" class="hidden">
+      <div class="smp-head">
+        <button class="smp-newbtn" id="noteNewBtn">&#65291; New note</button>
+        <div class="search" style="flex:1;min-width:160px;position:relative">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--ink-3)"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <input id="noteSearch" placeholder="Search notes..." style="width:100%;padding-left:34px">
+        </div>
+        <select id="noteFilter"><option value="">All types</option><option value="Announcement">Announcements</option><option value="Info">General info</option><option value="Note">Notes</option></select>
+      </div>
+      <div id="notesGrid" class="smp-cards"></div>
+      <div id="notesEmpty" class="empty hidden"><h3>No notes yet</h3><p>Add announcements, general info, or operational notes.</p></div>
+    </div>
+
   </main>
 </div>
 
@@ -356,7 +371,7 @@ const GAMMIER_DECO=["INT 110","INT 115","INT 120","INT 122","INT 126","INT 127",
 const GAMMIER_BAT=["SOL 101","SOL 102","SOL 108","SOL 111","SOL 112","SOL 114","SOL 115","SOL 116","SOL 141","SOL 142","SOL 145","SOL 150","SOL 152","SOL 158","SOL 160","SOL 162","SOL 171","SOL 172","SOL 251","SOL 275","SOL 332","ATH 101","IR 50","IR 50X","IR 70","IR 70X","IR 80","IR 80X","IR 82","IR 82X","IR 95","IR 95X","TC 98","UVA 151","UVB 460","SEC 052","SEC 054","SEC 058","TOP 300","MIR 500","MIR 501","MDN 500","MIX 551","AFG 100","AGI 100","AGI 200"];
 const GAMMIER_ADHEAZY=[];
 const CATALOGUE_JIP=["JIM 120HT","JIM 120HTM","JIM 120 TAV","JIM 130","JIM 130M","JIP 170","JIP 170B","JIP 180","JIT 120 ECT","JIT 120 EC Blanc","DTF Film A","DTF Film B","TRF 120","MSH 1011","BCH 1010","BKL 180"];
-const PRESET_TABS={"Popular":POPULAR,"Gammier Décoration":GAMMIER_DECO,"Gammier Bâtiment":GAMMIER_BAT,"Gammier Adheazy":GAMMIER_ADHEAZY,"Catalogue JIP":CATALOGUE_JIP};
+const PRESET_TABS={"Popular":POPULAR,"Catalogue":CATALOGUE_JIP.concat(GAMMIER_BAT).concat(GAMMIER_DECO),"Gammier Décoration":GAMMIER_DECO,"Gammier A5":GAMMIER_BAT,"Gammier A3":GAMMIER_DECO,"Gammier Adheazy":GAMMIER_ADHEAZY};
 
 /* Flatten catalog for lookup */
 const FLAT=[]; const NORM={};
@@ -422,6 +437,10 @@ async function demoApi(action,p){
   if(action==="addSample"){SAMPLES.push(p.row);store.set("adv_smp_v1",JSON.stringify(SAMPLES));return{ok:true};}
   if(action==="updateSample"){const i=SAMPLES.findIndex(x=>x.id===p.row.id);if(i>=0)SAMPLES[i]=p.row;store.set("adv_smp_v1",JSON.stringify(SAMPLES));return{ok:true};}
   if(action==="deleteSample"){SAMPLES=SAMPLES.filter(x=>x.id!==p.id);store.set("adv_smp_v1",JSON.stringify(SAMPLES));return{ok:true};}
+  if(action==="listNotes"){let d=demoLoad("adv_notes_v1")||[];return{ok:true,rows:d};}
+  if(action==="addNote"){NOTES.push(p.row);store.set("adv_notes_v1",JSON.stringify(NOTES));return{ok:true};}
+  if(action==="updateNote"){const i=NOTES.findIndex(x=>x.id===p.row.id);if(i>=0)NOTES[i]=p.row;store.set("adv_notes_v1",JSON.stringify(NOTES));return{ok:true};}
+  if(action==="deleteNote"){NOTES=NOTES.filter(x=>x.id!==p.id);store.set("adv_notes_v1",JSON.stringify(NOTES));return{ok:true};}
   throw new Error("UNKNOWN_ACTION");
 }
 
@@ -458,9 +477,9 @@ async function boot(){
 async function reload(){
   lastReload=Date.now();
   try{
-    const [r,s]=await Promise.all([api("list"),api("listSamples").catch(()=>({rows:[]}))]);
-    ROWS=r.rows||[];SAMPLES=(s&&s.rows)||[];
-    render();renderSamples();
+    const [r,s,nt]=await Promise.all([api("list"),api("listSamples").catch(()=>({rows:[]})),api("listNotes").catch(()=>({rows:[]}))]);
+    ROWS=r.rows||[];SAMPLES=(s&&s.rows)||[];NOTES=(nt&&nt.rows)||[];
+    render();renderSamples();renderNotes();
   }catch(e){toast("Load failed: "+e.message,true);}
 }
 
@@ -478,6 +497,9 @@ function buildStaticUI(){
   document.getElementById("qClient").addEventListener("keydown",e=>{if(e.key==="Enter")quickAdd();});
   document.getElementById("qTrack").addEventListener("keydown",e=>{if(e.key==="Enter")quickAdd();});
   document.getElementById("smpNewBtn").onclick=openBuilder;
+  document.getElementById("noteNewBtn").onclick=()=>openNoteModal();
+  document.getElementById("noteSearch").addEventListener("input",renderNotes);
+  document.getElementById("noteFilter").addEventListener("input",renderNotes);
   document.getElementById("smpSearch").addEventListener("input",renderSamples);
   document.getElementById("smpFilterCom").addEventListener("input",renderSamples);
 }
@@ -485,8 +507,10 @@ function fillSelect(id,arr,withAll){const el=document.getElementById(id);const k
 function switchView(name){
   currentView=name;
   document.querySelectorAll("#mainTabs button").forEach(x=>x.classList.toggle("on",x.dataset.view===name));
-  document.getElementById("ordersWrap").classList.toggle("hidden",name==="samples");
+  document.getElementById("ordersWrap").classList.toggle("hidden",name==="samples"||name==="notes");
   document.getElementById("viewSamples").classList.toggle("hidden",name!=="samples");
+  document.getElementById("viewNotes").classList.toggle("hidden",name!=="notes");
+  if(name==="notes")renderNotes();
   document.getElementById("viewTable").classList.toggle("hidden",name!=="table");
   document.getElementById("viewCharts").classList.toggle("hidden",name!=="charts");
   if(name==="samples")renderSamples();else render();
@@ -575,8 +599,7 @@ function renderTable(rows){
 function renderCharts(rows){
   Chart.defaults.font.family="-apple-system,sans-serif";Chart.defaults.color="#6e6e73";
   const destroy=k=>{if(charts[k])charts[k].destroy();};
-  const stL=STATUTS.map(s=>s.name),stD=STATUTS.map(s=>rows.filter(r=>r.statut===s.name).length);
-  destroy("s");charts.s=new Chart(document.getElementById("chStatut"),{type:"doughnut",data:{labels:stL,datasets:[{data:stD,backgroundColor:STATUTS.map(s=>getCSS(s.var)),borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:"62%",plugins:{legend:{position:"right",labels:{boxWidth:10,padding:10,font:{size:11}}}}}});
+  
   const days=[...new Set(rows.map(r=>normDate(r.date)||normDate(r.creeLe)).filter(Boolean))].sort();
   const dD=days.map(d=>rows.filter(r=>(normDate(r.date)||normDate(r.creeLe))===d).length);
   destroy("d");charts.d=new Chart(document.getElementById("chDay"),{type:"line",data:{labels:days.map(d=>{const p=d.split("-");return p[2]+"/"+p[1];}),datasets:[{data:dD,borderColor:getCSS("--accent"),backgroundColor:"rgba(0,113,227,.1)",fill:true,tension:.35,pointRadius:3,pointBackgroundColor:getCSS("--accent")}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0},grid:{color:"#eee"}},x:{grid:{display:false}}}}});
@@ -648,16 +671,82 @@ function renderSamples(){
       <div class="sc-client">${esc(s.client||"(no client)")}</div>
       <div class="sc-meta"><span class="avatar" style="width:20px;height:20px;font-size:10px;background:${AVATAR_COLORS[s.commercial]||'#8e8e93'}">${initials(s.commercial)}</span>${esc(s.commercial||"")} \u00b7 ${frDate(s.date)} \u00b7 <span class="sc-count">${n} pcs / ${items.length} refs</span></div>
       ${s.ups?`<div class="sc-meta"><a class="ups mono" href="${upsLink(s.ups)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">UPS ${esc(s.ups)} \u2197</a></div>`:""}
+      ${(()=>{let fu=[];try{fu=JSON.parse(s.followups||"[]");}catch(e){}return fu.length?`<div class="sc-meta" style="color:var(--s-prep)">\u{1F4AC} ${fu.length} follow-up(s)</div>`:"";})()}
     </div>`;
   }).join("");
+}
+
+
+/* ============================================================ NOTES & ANNOUNCEMENTS */
+let NOTES=[];
+async function loadNotes(){try{const r=await api("listNotes").catch(()=>({rows:[]}));NOTES=(r&&r.rows)||[];}catch(e){NOTES=[];}}
+function renderNotes(){
+  const wrap=document.getElementById("notesGrid");if(!wrap)return;
+  const q=(document.getElementById("noteSearch").value||"").toLowerCase().trim();
+  const ft=document.getElementById("noteFilter").value;
+  const list=NOTES.filter(n=>!n.supprime).filter(n=>{
+    if(ft&&n.type!==ft)return false;
+    if(q){const hay=[n.title,n.body,n.type,n.author].join(" ").toLowerCase();if(!hay.includes(q))return false;}
+    return true;
+  }).sort((a,b)=>{
+    const pin=(b.pinned==="1"?1:0)-(a.pinned==="1"?1:0);
+    if(pin)return pin;
+    return String(b.creeLe||"").localeCompare(String(a.creeLe||""));
+  });
+  document.getElementById("notesEmpty").classList.toggle("hidden",list.length>0);
+  const typeIcon=t=>t==="Announcement"?"\u{1F4E2}":t==="Info"?"\u2139\uFE0F":"\u{1F4DD}";
+  const typeColor=t=>t==="Announcement"?"#ff9f0a":t==="Info"?"#0071e3":"#8e8e93";
+  wrap.innerHTML=list.map(n=>`<div class="smp-card" onclick="editNote('${n.id}')" style="border-left:4px solid ${typeColor(n.type)}">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+      <span style="font-size:16px">${typeIcon(n.type)}</span>
+      <span style="font-weight:700;font-size:14px;flex:1">${esc(n.title)}</span>
+      ${n.pinned==="1"?"<span style='font-size:12px'>📌</span>":""}
+    </div>
+    <div style="font-size:13px;color:var(--ink-2);white-space:pre-wrap;max-height:80px;overflow:hidden">${esc(n.body)}</div>
+    <div style="font-size:11px;color:var(--ink-3);margin-top:6px">${esc(n.author||"")} · ${frDate(normDate(n.creeLe))}</div>
+  </div>`).join("");
+}
+function openNoteModal(existing){
+  const n=existing||{id:"N"+Date.now().toString(36),title:"",body:"",type:"Note",author:currentUser,pinned:"",creeLe:new Date().toISOString(),modifieLe:"",supprime:""};
+  const isNew=!existing;
+  const back=document.createElement("div");back.className="modal-back";back.id="noteBack";
+  back.innerHTML=`<div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-head"><h3>${isNew?"New note":"Edit note"}</h3><button class="close" onclick="closeNoteModal()">\u2715</button></div>
+    <div class="modal-body"><div class="form-grid">
+      <div><label>Type</label><select id="nType"><option ${n.type==="Announcement"?"selected":""}>Announcement</option><option ${n.type==="Info"?"selected":""}>Info</option><option ${n.type==="Note"?"selected":""}>Note</option></select></div>
+      <div><label>Pin to top?</label><div class="toggle-row" id="nPin"><div class="toggle ${n.pinned==='1'?'on':''}" data-v="1">Yes</div><div class="toggle ${n.pinned!=='1'?'on':''}" data-v="">No</div></div></div>
+      <div class="full"><label>Title</label><input id="nTitle" value="${esc(n.title)}" placeholder="e.g. SOL 150 arriving next month"></div>
+      <div class="full"><label>Content</label><textarea id="nBody" rows="5" placeholder="Details, phone numbers, instructions...">${esc(n.body)}</textarea></div>
+    </div></div>
+    <div class="modal-foot">${!isNew?'<button class="del" onclick="deleteNote(\''+n.id+'\')">Delete</button>':''}<button class="save" onclick="saveNote('${n.id}',${isNew})">${isNew?"Add":"Save"}</button></div>
+  </div>`;
+  back.onclick=closeNoteModal;document.body.appendChild(back);
+  back.querySelectorAll("#nPin .toggle").forEach(t=>t.onclick=()=>{back.querySelectorAll("#nPin .toggle").forEach(x=>x.classList.remove("on"));t.classList.add("on");});
+  document.getElementById("nTitle").focus();
+}
+function closeNoteModal(){const b=document.getElementById("noteBack");if(b)b.remove();}
+function editNote(id){const n=NOTES.find(x=>x.id===id);if(n)openNoteModal(n);}
+async function saveNote(id,isNew){
+  const pin=document.querySelector("#nPin .toggle.on").dataset.v;
+  const row={id,title:document.getElementById("nTitle").value.trim(),body:document.getElementById("nBody").value.trim(),type:document.getElementById("nType").value,author:currentUser,pinned:pin,creeLe:isNew?new Date().toISOString():(NOTES.find(x=>x.id===id)||{}).creeLe||new Date().toISOString(),modifieLe:new Date().toISOString(),supprime:""};
+  if(!row.title){toast("Add a title.",true);return;}
+  if(isNew)NOTES.push(row);else{const i=NOTES.findIndex(x=>x.id===id);if(i>=0)row.creeLe=NOTES[i].creeLe||row.creeLe,NOTES[i]=row;}
+  closeNoteModal();renderNotes();toast(isNew?"Note added":"Note saved");
+  try{await api(isNew?"addNote":"updateNote",{row});}catch(e){toast("Failed: "+e.message,true);}
+}
+async function deleteNote(id){
+  if(!confirm("Delete this note?"))return;
+  NOTES=NOTES.filter(x=>x.id!==id);closeNoteModal();renderNotes();toast("Note deleted");
+  try{await api("deleteNote",{id});}catch(e){toast("Failed: "+e.message,true);}
 }
 
 /* ============================================================ SAMPLES: builder */
 let B={id:"",commercial:currentUser,client:"",items:[],notes:"",ups:"",date:todayISO(),existing:null,brandTab:"Popular",search:""};
 function openBuilder(existingId){
   const ex=(typeof existingId==="string")?sampleById(existingId):null;
-  if(ex){let items=[];try{items=JSON.parse(ex.items||"[]");}catch(e){}B={id:ex.id,commercial:ex.commercial,client:ex.client,items:items.map(i=>({ref:i.ref,brand:i.brand,cat:i.cat,qty:+i.qty||1,obs:i.obs||""})),notes:ex.notes||"",ups:ex.ups||"",date:ex.date||todayISO(),existing:ex.id,brandTab:"Popular",search:""};}
-  else{B={id:nextSampleId(),commercial:SAMPLE_COMMERCIALS.includes(currentUser)?currentUser:SAMPLE_COMMERCIALS[0],client:"",items:[],notes:"",ups:"",date:todayISO(),existing:null,brandTab:"Popular",search:""};}
+  if(ex){let items=[];try{items=JSON.parse(ex.items||"[]");}catch(e){}let fups=[];try{fups=JSON.parse(ex.followups||"[]");}catch(e){}
+  B={id:ex.id,commercial:ex.commercial,client:ex.client,items:items.map(i=>({ref:i.ref,brand:i.brand,cat:i.cat,qty:+i.qty||1,obs:i.obs||""})),notes:ex.notes||"",ups:ex.ups||"",date:ex.date||todayISO(),existing:ex.id,brandTab:"Popular",search:"",followups:fups};}
+  else{B={id:nextSampleId(),commercial:SAMPLE_COMMERCIALS.includes(currentUser)?currentUser:SAMPLE_COMMERCIALS[0],client:"",items:[],notes:"",ups:"",date:todayISO(),existing:null,brandTab:"Popular",search:"",followups:[]};}
   document.getElementById("smpHistory").classList.add("hidden");
   document.getElementById("smpBuilder").classList.remove("hidden");
   renderBuilder();
@@ -698,6 +787,11 @@ function renderBuilder(){
         <div class="sel-title">Selected items</div>
         <div id="selList"></div>
         <div style="margin-top:14px"><label style="font-size:12px;color:var(--ink-2);font-weight:500;display:block;margin-bottom:5px">General notes</label><textarea id="bNotes" rows="2" style="width:100%">${esc(B.notes)}</textarea></div>
+        <div style="margin-top:14px">
+          <div class="sel-title">Follow-up timeline</div>
+          <div id="fuList"></div>
+          <div style="display:flex;gap:8px;margin-top:8px"><input id="fuText" placeholder="Add follow-up note..." style="flex:1;font-size:13px"><button class="btn-ghost" style="padding:8px 12px;font-size:13px" onclick="addFollowup()">Add</button></div>
+        </div>
       </div>
     </div>
     <div class="builder-foot">
@@ -717,8 +811,25 @@ function renderBuilder(){
   document.getElementById("micBtn").onclick=toggleMic;
   document.getElementById("pdfBtn").onclick=makePDF;
   document.getElementById("saveSmpBtn").onclick=saveSample;
-  renderCatBody();renderSel();
+  renderCatBody();renderSel();renderFollowups();
 }
+function renderFollowups(){
+  const box=document.getElementById("fuList");if(!box)return;
+  if(!B.followups||!B.followups.length){box.innerHTML='<div class="sel-empty" style="padding:8px 0">No follow-ups yet.</div>';return;}
+  box.innerHTML=B.followups.map((f,i)=>`<div style="display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px">
+    <span style="color:var(--ink-3);white-space:nowrap;font-size:11px">${esc(f.date)} · ${esc(f.by)}</span>
+    <span style="flex:1">${esc(f.text)}</span>
+    <button class="si-del" onclick="delFollowup(${i})">✕</button>
+  </div>`).join("");
+}
+function addFollowup(){
+  const el=document.getElementById("fuText");if(!el)return;
+  const text=el.value.trim();if(!text)return;
+  if(!B.followups)B.followups=[];
+  B.followups.push({text,by:document.getElementById("bCom").value,date:frDate(todayISO())});
+  el.value="";renderFollowups();
+}
+function delFollowup(i){B.followups.splice(i,1);renderFollowups();}
 function renderCatBody(){
   const body=document.getElementById("catBody");if(!body)return;
   const selRefs=new Set(B.items.map(i=>i.ref));
@@ -751,7 +862,7 @@ function escq(s){return String(s).replace(/'/g,"\\'");}
 function addManual(){const el=document.getElementById("adhInput");if(!el)return;const v=el.value.trim();if(!v)return;addItemRaw({ref:v,brand:"Adheazy",cat:"Manual"});el.value="";}
 function addManualBrand(brand){const el=document.getElementById("adhInput");if(!el)return;const v=el.value.trim();if(!v)return;addItemRaw({ref:v,brand:brand,cat:"Manual"});el.value="";}
 function addItem(ref){const o=NORM[normref(ref)]||NORM[nospace(ref)];if(o)addItemRaw(o);}
-function addItemRaw(o){const ex=B.items.find(i=>i.ref===o.ref);if(ex)ex.qty++;else B.items.push({ref:o.ref,brand:o.brand,cat:o.cat,qty:1,obs:""});renderSel();renderCatBody();}
+function addItemRaw(o){const ex=B.items.find(i=>i.ref===o.ref);if(ex){toast(o.ref+" already added",false);return;}B.items.push({ref:o.ref,brand:o.brand,cat:o.cat,qty:1,obs:""});renderSel();renderCatBody();}
 function renderSel(){
   const box=document.getElementById("selList");if(!box)return;
   if(!B.items.length){box.innerHTML='<div class="sel-empty">No items yet. Tap references on the left, or use quick add.</div>';document.getElementById("bSummary").textContent="";return;}
@@ -837,7 +948,7 @@ async function saveSample(){
   B.notes=(document.getElementById("bNotes").value||"").trim();
   if(!B.items.length){toast("Add at least one reference.",true);return;}
   const now=new Date().toISOString();
-  const row={id:B.id,date:B.date,commercial:B.commercial,client:B.client,items:JSON.stringify(B.items),notes:B.notes,ups:B.ups,status:"Sent",creeLe:now,modifieLe:now,supprime:""};
+  const row={id:B.id,date:B.date,commercial:B.commercial,client:B.client,items:JSON.stringify(B.items),notes:B.notes,ups:B.ups,status:"Sent",followups:JSON.stringify(B.followups||[]),creeLe:now,modifieLe:now,supprime:""};
   const isNew=!B.existing;
   if(isNew)SAMPLES.push(row);else{const i=SAMPLES.findIndex(s=>s.id===B.id);if(i>=0){row.creeLe=SAMPLES[i].creeLe||now;SAMPLES[i]=row;}}
   closeBuilder();toast(isNew?("\u2713 "+B.id+" saved"):"Changes saved");

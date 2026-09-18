@@ -373,7 +373,6 @@ const GAMMIER_BAT=["SOL 101","SOL 102","SOL 108","SOL 111","SOL 112","SOL 114","
 const GAMMIER_ADHEAZY=[];
 const CATALOGUE_JIP=["JIM 120HT","JIM 120HTM","JIM 120 TAV","JIM 130","JIM 130M","JIP 170","JIP 170B","JIP 180","JIT 120 ECT","JIT 120 EC Blanc","DTF Film A","DTF Film B","TRF 120","MSH 1011","BCH 1010","BKL 180"];
 const GAMMIER_AUTO=["AUT C10","AUT C15","AUT C20","AUT C25","AUT C35","AUT C50","AUT C70","AUT C83","AUT S05","AUT P05","AUT P10","AUT P15","AUT P20","AUT P25","AUT P35","AUT P50","AUT P70","AUT P83","AUT D05","AUT D10","AUT D15","AUT D20","AUT D25","AUT D35","AUT D50","AUT D70","AUT D83","EXLB 05","EXLB 10","EXLB 15","EXLB 20","EXLB 25","EXLB 35","EXLB 50","EXLB 52","EXLB 70","EXLB 83","FOTO 200","FOTO 450","BDS 300","BDS 700"];
-const OTHERS_FAMILIES={"Catalogue":CATALOGUE_JIP.concat(GAMMIER_BAT).concat(GAMMIER_DECO),"Gammier Décoration":GAMMIER_DECO,"Gammier A5":GAMMIER_BAT,"Gammier A3":GAMMIER_DECO,"Gammier Adheazy":GAMMIER_ADHEAZY,"Gammier Auto":GAMMIER_AUTO};
 
 /* Flatten catalog for lookup */
 const FLAT=[]; const NORM={};
@@ -837,7 +836,7 @@ function renderCatBody(){
   const selRefs=new Set(B.items.map(i=>i.ref));
   const q=normref(B.search);
   const chipHtml=(ref)=>`<div class="ref-chip ${selRefs.has(ref)?'sel':''}" onclick="addItem('${escq(ref)}')">${esc(ref)}</div>`;
-  const manualHtml=(brand)=>`<div class="manual-add"><input id="adhInput" placeholder="Type a reference..."><button onclick="addManualBrand('${escq(brand)}')">Add</button></div>`;
+  const uid="mi"+Math.random().toString(36).slice(2,8);
 
   // Global search
   if(q){
@@ -846,47 +845,41 @@ function renderCatBody(){
     return;
   }
 
-  // Popular tab
+  // Popular
   if(B.brandTab==="Popular"){
     body.innerHTML=`<div class="fam"><div class="fam-body">${POPULAR.map(ref=>chipHtml(ref)).join("")}</div></div>`;
     return;
   }
 
-  // Adheazy tab (manual only)
+  // Adheazy (manual only)
   if(B.brandTab==="Adheazy"){
-    body.innerHTML=`<div class="fam"><div class="fam-body">${manualHtml("Adheazy")}</div></div>`;
+    body.innerHTML=`<div class="fam"><div class="fam-body"><div class="manual-add"><input id="${uid}" placeholder="Type an Adheazy ref..." onkeydown="if(event.key==='Enter')doManualAdd('${uid}','Adheazy')"><button onclick="doManualAdd('${uid}','Adheazy')">Add</button></div></div></div>`;
     return;
   }
 
-  // Others tab: sub-families (gammiers, catalogue) + manual
+  // Others: gammiers as single items + manual
   if(B.brandTab==="Others"){
-    let html="";
-    for(const fam in OTHERS_FAMILIES){
-      const refs=OTHERS_FAMILIES[fam];
-      if(!refs.length){
-        html+=`<div class="fam"><div class="fam-head" onclick="this.nextElementSibling.classList.toggle('hidden')">${esc(fam)}<span class="fc">manual</span></div><div class="fam-body">${manualHtml(fam)}</div></div>`;
-      } else {
-        html+=`<div class="fam"><div class="fam-head" onclick="this.nextElementSibling.classList.toggle('hidden')">${esc(fam)}<span class="fc">${refs.length} refs</span></div><div class="fam-body hidden">${refs.map(ref=>chipHtml(ref)).join("")}</div></div>`;
-      }
-    }
-    html+=`<div class="fam"><div class="fam-head" onclick="this.nextElementSibling.classList.toggle('hidden')">Other (manual entry)<span class="fc">custom</span></div><div class="fam-body">${manualHtml("Others")}</div></div>`;
+    const gammiers=["Catalogue","Gammier Décoration","Gammier Bâtiment","Gammier A5","Gammier A3","Gammier Adheazy","Gammier Auto"];
+    let html=`<div class="fam"><div class="fam-head" style="cursor:default">Sample books & catalogues</div><div class="fam-body">${gammiers.map(g=>`<div class="ref-chip ${selRefs.has(g)?'sel':''}" onclick="addItemRaw({ref:'${escq(g)}',brand:'Others',cat:'Gammier'})">${esc(g)}</div>`).join("")}</div></div>`;
+    const mid="oi"+Math.random().toString(36).slice(2,8);
+    html+=`<div class="fam"><div class="fam-head" style="cursor:default">Other (manual entry)</div><div class="fam-body"><div class="manual-add"><input id="${mid}" placeholder="Custom item..." onkeydown="if(event.key==='Enter')doManualAdd('${mid}','Others')"><button onclick="doManualAdd('${mid}','Others')">Add</button></div></div></div>`;
     body.innerHTML=html;
     return;
   }
 
-  // Reflectiv / Just in Print: catalog families
+  // Reflectiv / Just in Print: catalog families (collapsed)
   const fams=CATALOG[B.brandTab]||{};
   let html="";
   for(const fam in fams){
     const refs=fams[fam];
     html+=`<div class="fam"><div class="fam-head" onclick="this.nextElementSibling.classList.toggle('hidden')">${esc(fam)}<span class="fc">${refs.length} refs</span></div><div class="fam-body hidden">${refs.map(ref=>chipHtml(ref)).join("")}</div></div>`;
   }
-  html+=`<div class="fam"><div class="fam-head" onclick="this.nextElementSibling.classList.toggle('hidden')">Other (manual entry)<span class="fc">custom</span></div><div class="fam-body">${manualHtml(B.brandTab)}</div></div>`;
+  const eid="ei"+Math.random().toString(36).slice(2,8);
+  html+=`<div class="fam"><div class="fam-head" onclick="this.nextElementSibling.classList.toggle('hidden')">Other (manual entry)<span class="fc">custom</span></div><div class="fam-body"><div class="manual-add"><input id="${eid}" placeholder="New reference..." onkeydown="if(event.key==='Enter')doManualAdd('${eid}','${escq(B.brandTab)}')"><button onclick="doManualAdd('${eid}','${escq(B.brandTab)}')">Add</button></div></div></div>`;
   body.innerHTML=html;
 }
 function escq(s){return String(s).replace(/'/g,"\\'");}
-function addManual(){const el=document.getElementById("adhInput");if(!el)return;const v=el.value.trim();if(!v)return;addItemRaw({ref:v,brand:"Adheazy",cat:"Manual"});el.value="";}
-function addManualBrand(brand){const el=document.getElementById("adhInput");if(!el)return;const v=el.value.trim();if(!v)return;addItemRaw({ref:v,brand:brand,cat:"Manual"});el.value="";}
+function doManualAdd(inputId,brand){const el=document.getElementById(inputId);if(!el)return;const v=el.value.trim();if(!v)return;addItemRaw({ref:v,brand:brand,cat:"Manual"});el.value="";el.focus();}
 function addItem(ref){const o=NORM[normref(ref)]||NORM[nospace(ref)];if(o)addItemRaw(o);}
 function addItemRaw(o){const ex=B.items.find(i=>i.ref===o.ref);if(ex){toast(o.ref+" already added",false);return;}B.items.push({ref:o.ref,brand:o.brand,cat:o.cat,qty:1,obs:""});renderSel();renderCatBody();}
 function renderSel(){

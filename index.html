@@ -47,6 +47,7 @@ header.app{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.72);bac
 .session{font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap}
 .icon-btn{border:1px solid var(--line);background:#fff;width:34px;height:34px;border-radius:10px;cursor:pointer;color:var(--ink-2);font-size:15px;display:flex;align-items:center;justify-content:center}
 .icon-btn:hover{background:var(--surface-2)}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
 .eclair-btn{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:10px;padding:7px 12px;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap}
 .eclair-btn:hover{background:var(--surface-2)}
 
@@ -248,6 +249,7 @@ tr.group-row td{padding:16px 14px 7px;border-bottom:1px solid var(--line)}
         <span style="font-size:12.5px;color:var(--ink-2)">Logged as</span>
         <div class="seg" id="userSeg"></div>
         <span class="session" id="sessionTag"></span>
+        <button class="icon-btn" id="refreshBtn" title="Refresh data from Google Sheets" style="font-size:13px">↻</button>
         <button class="eclair-btn" id="eclairBtn" title="Open a floating quick-entry window">&#8690; Quick entry</button>
         <button class="icon-btn" id="logoutBtn" title="Close session">&#9211;</button>
       </div>
@@ -481,15 +483,19 @@ async function boot(){
   if(DEMO)document.getElementById("demoBanner").classList.remove("hidden");
   buildStaticUI();
   tickSession();setInterval(tickSession,30000);
-  document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&Date.now()-lastReload>4000)reload();});
+  // auto-reload disabled — use Refresh button
   await reload();
 }
 async function reload(){
   lastReload=Date.now();
+  // Show cached data instantly while fetching fresh data
+  const cached=demoLoad("adv_cache_v1");
+  if(cached&&!ROWS.length){ROWS=cached.rows||[];SAMPLES=cached.samples||[];NOTES=cached.notes||[];render();renderSamples();renderNotes();}
   try{
     const [r,s,nt]=await Promise.all([api("list"),api("listSamples").catch(()=>({rows:[]})),api("listNotes").catch(()=>({rows:[]}))]);
     ROWS=r.rows||[];SAMPLES=(s&&s.rows)||[];NOTES=(nt&&nt.rows)||[];
     render();renderSamples();renderNotes();
+    if(!DEMO)store.set("adv_cache_v1",JSON.stringify({rows:ROWS,samples:SAMPLES,notes:NOTES}));
   }catch(e){toast("Load failed: "+e.message,true);}
 }
 
@@ -504,6 +510,7 @@ function buildStaticUI(){
   document.querySelectorAll("#mainTabs button").forEach(b=>b.onclick=()=>switchView(b.dataset.view));
   document.getElementById("addBtn").onclick=quickAdd;
   document.getElementById("eclairBtn").onclick=openEclair;
+  document.getElementById("refreshBtn").onclick=async()=>{document.getElementById("refreshBtn").style.animation="spin .6s";await reload();document.getElementById("refreshBtn").style.animation="";toast("Data refreshed");};
   document.getElementById("qClient").addEventListener("keydown",e=>{if(e.key==="Enter")quickAdd();});
   document.getElementById("qTrack").addEventListener("keydown",e=>{if(e.key==="Enter")quickAdd();});
   document.getElementById("smpNewBtn").onclick=openBuilder;

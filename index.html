@@ -88,6 +88,9 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);
 
 .tabs{display:flex;background:#ececed;border-radius:12px;padding:3px;gap:2px;margin-bottom:16px;width:max-content;max-width:100%;overflow:auto}
 .tabs button{border:0;background:transparent;color:var(--ink-2);padding:8px 18px;border-radius:9px;font-size:14px;font-weight:500;cursor:pointer;transition:.15s;white-space:nowrap}
+
+.ext-link{display:inline-flex;align-items:center;gap:4px;padding:6px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink-2);font-size:13px;font-weight:500;text-decoration:none;transition:.15s;white-space:nowrap}
+.ext-link:hover{background:var(--surface-2);color:var(--accent);border-color:var(--accent)}
 .tabs button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
 
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-1);overflow:hidden}
@@ -258,12 +261,13 @@ tr.group-row td{padding:16px 14px 7px;border-bottom:1px solid var(--line)}
       <button data-view="table" class="on">Table</button>
       <button data-view="charts">Charts</button>
       <button data-view="samples">Samples</button>
-      <button data-view="notes">Notes & Announcements</button>
-      <span style="width:1px;background:var(--line-strong);margin:4px 6px"></span>
-      <button onclick="window.open('https://dreveli714.github.io/pl/','_blank')" style="color:var(--ink-3)">Packing List ↗</button>
-      <button onclick="window.open('https://dreveli714.github.io/calculadoraelc200/','_blank')" style="color:var(--ink-3)">Proforma ELC 200 ↗</button>
-      <button onclick="window.open('https://dreveli714.github.io/export/','_blank')" style="color:var(--ink-3)">Stock ↗</button>
-      <button onclick="window.open('https://dreveli714.github.io/litiges/','_blank')" style="color:var(--ink-3)">Litiges ↗</button>
+      <button data-view="notes">Notes</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+      <a href="https://dreveli714.github.io/pl/" target="_blank" rel="noopener" class="ext-link">Packing List ↗</a>
+      <a href="https://dreveli714.github.io/calculadoraelc200/" target="_blank" rel="noopener" class="ext-link">Proforma ELC 200 ↗</a>
+      <a href="https://dreveli714.github.io/export/" target="_blank" rel="noopener" class="ext-link">Stock ↗</a>
+      <a href="https://dreveli714.github.io/litiges/" target="_blank" rel="noopener" class="ext-link">Litiges ↗</a>
     </div>
 
     <!-- ===== ORDERS (table + charts share this block) ===== -->
@@ -341,7 +345,7 @@ tr.group-row td{padding:16px 14px 7px;border-bottom:1px solid var(--line)}
         </div>
         <select id="noteFilter"><option value="">All types</option><option value="Announcement">Announcements</option><option value="Info">General info</option><option value="Note">Notes</option></select>
       </div>
-      <div id="notesGrid" class="smp-cards"></div>
+      <div id="notesGrid"></div>
       <div id="notesEmpty" class="empty hidden"><h3>No notes yet</h3><p>Add announcements, general info, or operational notes.</p></div>
     </div>
 
@@ -702,15 +706,26 @@ function renderNotes(){
   document.getElementById("notesEmpty").classList.toggle("hidden",list.length>0);
   const typeIcon=t=>t==="Announcement"?"\u{1F4E2}":t==="Info"?"\u2139\uFE0F":"\u{1F4DD}";
   const typeColor=t=>t==="Announcement"?"#ff9f0a":t==="Info"?"#0071e3":"#8e8e93";
-  wrap.innerHTML=list.map(n=>`<div class="smp-card" onclick="editNote('${n.id}')" style="border-left:4px solid ${typeColor(n.type)}">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-      <span style="font-size:16px">${typeIcon(n.type)}</span>
-      <span style="font-weight:700;font-size:14px;flex:1">${esc(n.title)}</span>
-      ${n.pinned==="1"?"<span style='font-size:12px'>📌</span>":""}
-    </div>
-    <div style="font-size:13px;color:var(--ink-2);white-space:pre-wrap;max-height:80px;overflow:hidden">${esc(n.body)}</div>
-    <div style="font-size:11px;color:var(--ink-3);margin-top:6px">${esc(n.author||"")} · ${frDate(normDate(n.creeLe))}</div>
-  </div>`).join("");
+  // Group by type
+  const groups={};list.forEach(n=>{(groups[n.type]=groups[n.type]||[]).push(n);});
+  const order=["Announcement","Info","Note"];
+  let html="";
+  order.forEach(type=>{
+    const items=groups[type];if(!items||!items.length)return;
+    html+=`<div style="margin-bottom:18px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="font-size:15px">${typeIcon(type)}</span><span style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:${typeColor(type)}">${type}s</span><span style="font-size:11px;color:var(--ink-3);background:#fff;border:1px solid var(--line);border-radius:999px;padding:1px 8px">${items.length}</span></div>`;
+    items.forEach(n=>{
+      html+=`<div onclick="editNote('${n.id}')" style="display:flex;align-items:flex-start;gap:10px;padding:11px 14px;background:#fff;border:1px solid var(--line);border-left:4px solid ${typeColor(n.type)};border-radius:12px;margin-bottom:7px;cursor:pointer;transition:.12s" onmouseover="this.style.background='#f7f9fc'" onmouseout="this.style.background='#fff'">
+        ${n.pinned==="1"?"<span style='font-size:11px;flex-shrink:0'>📌</span>":""}
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;font-size:14px;margin-bottom:2px">${esc(n.title)}</div>
+          <div style="font-size:12.5px;color:var(--ink-2);white-space:pre-wrap;max-height:48px;overflow:hidden;line-height:1.4">${esc(n.body)}</div>
+        </div>
+        <span style="font-size:11px;color:var(--ink-3);white-space:nowrap;flex-shrink:0">${esc(n.author||"")} · ${frDate(normDate(n.creeLe))}</span>
+      </div>`;
+    });
+    html+=`</div>`;
+  });
+  wrap.innerHTML=html;
 }
 function openNoteModal(existing){
   const n=existing||{id:"N"+Date.now().toString(36),title:"",body:"",type:"Note",author:currentUser,pinned:"",creeLe:new Date().toISOString(),modifieLe:"",supprime:""};
